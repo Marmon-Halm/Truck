@@ -7,15 +7,45 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/remer.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#016e96"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
+    // "plugins": [
+    //   [
+    //     "expo-build-properties",
+    //     {
+    //       "ios": {
+    //         "useFrameworks": "static"
+    //       }
+    //     }
+    //   ],
+    //   [
+    //     "expo-image-picker",
+    //     {
+    //       "photosPermission": "The app accesses your photos to let you share them with your friends."
+    //     }
+    //   ],
+    //   [
+    //     "expo-location",
+    //     {
+    //       "locationAlwaysAndWhenInUsePermission": "Allow $(THIS APP) to use your location.",
+    //       "locationAlwaysPermission": "Allow $(THIS APP) to use your location."
+    //     }
+    //   ],
+    //   "expo-localization"
+    // ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
