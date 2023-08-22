@@ -23,17 +23,15 @@ const InputField = styled.TextInput`
     width: 80%;
     padding-left: 5px;
     padding-right: 25px;
-    font-family: 'Manrope_500Medium';
+    font-family: 'Manrope_600SemiBold';
 `;
 
 const InputContainer = styled.View`
-    height: 55px;
+    height: 50px;
     width: 100%;
     flex-direction: row;
     padding-horizontal: 10px;
     border-radius: 10px;
-    background-color: "#EDEDED";
-    margin-bottom: 15px;
 `;
 
 const LeftIconContainer = styled.View`
@@ -63,7 +61,7 @@ const RightIcon = styled.TouchableOpacity`
 
 
 
-const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, valid, ...props }) => {
+const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, plain, ...props }) => {
 
     let [fontsLoaded] = useFonts({
         Manrope_400Regular,
@@ -90,11 +88,14 @@ const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, valid,
     }
 
     return (
-        <InputContainer style={{ borderWidth: 2, borderColor: valid ? "#198754" : '#EDEDED', backgroundColor: "#FAFAFA" }}>
+        <InputContainer style={{ borderWidth: 1.5, borderColor: valid ? 'green' : "#FA5F55", backgroundColor: "#FAFAFA" }}>
             <LeftIconContainer>
                 <LeftIcon>
-                    <Feather name={icon} size={18} color="#7A7A7A" />
+                <MaterialCommunityIcons name={icon} size={20} color="grey" />
                 </LeftIcon>
+                {isMat && <LeftIcon>
+                </LeftIcon>
+                }
             </LeftIconContainer>
             <InputField
                 {...props}

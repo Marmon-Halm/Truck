@@ -19,12 +19,12 @@ const { primary, sea, white, little, killed, grey } = color;
 
 
 const InputField = styled.TextInput`
-    font-size: 15px;
-    color: ${killed};
-    width: 80%;
-    padding-left: 5px;
-    padding-right: 25px;
-    font-family: 'Manrope_500Medium';
+font-size: 16px;
+color: ${killed};
+width: 80%;
+padding-left: 5px;
+padding-right: 25px;
+font-family: 'Manrope_600SemiBold';
 `;
 
 const InputContainer = styled.View`
@@ -89,10 +89,10 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
     }
 
     return (
-        <InputContainer style={{ borderWidth: 2, borderColor: '#EDEDED', backgroundColor: "#FAFAFA" }}>
+        <InputContainer style={{ borderWidth: 1.5, borderColor: '#DCDCDC', backgroundColor: "#FAFAFA" }}>
             <LeftIconContainer>
                 <LeftIcon>
-                <MaterialCommunityIcons name={icon} size={20} color="grey" />
+                    <MaterialCommunityIcons name={icon} size={20} color="grey" />
                 </LeftIcon>
 
                 {isMat && <LeftIcon>

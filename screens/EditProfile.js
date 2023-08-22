@@ -15,6 +15,7 @@ import SmallTexts from '../componets/Texts/SmallTexts';
 import { StatusBarHeight } from '../componets/shared';
 import StyledInput from '../componets/Inputs/StyledInput';
 import * as ImagePicker from 'expo-image-picker';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import useUser from '../hook/useUser';
 
 
@@ -84,9 +85,9 @@ export default function EditProfile(params) {
 
                 <View >
                     <View style={{ width: '100%', alignItems: 'center', marginBottom: 15, marginTop: 25 }}>
-                        <TouchableOpacity style={{ width: 100, height: 100, borderRadius: 100 / 2, backgroundColor: '#E8E8E8', marginBottom: 12, borderWidth: 1, borderColor: '#787878' }} onPress={pickImage}>
+                        <TouchableOpacity style={{ width: 100, height: 100, borderRadius: 100 / 2, backgroundColor: '#E8E8E8', marginBottom: 12, borderWidth: 1, borderColor: 'grey' }} onPress={pickImage}>
                             <View style={{ width: upload ? 0 : '100%', height: upload ? 0 : '100%' , alignItems: 'center', justifyContent: 'center',}}>
-                            <MaterialCommunityIcons name="image-plus" size={24} color="black" />
+                            <MaterialCommunityIcons name="image-plus" size={45} color="grey" />
                             </View>
                             {image && <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 100 / 2, }} />}
                         </TouchableOpacity>

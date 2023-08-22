@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 
 export default function UserNavigator() {
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="TruckSelection">
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Location">
             <Stack.Screen name="Home" component={Home} />
 
             <Stack.Screen name="Trips" component={Trips} />

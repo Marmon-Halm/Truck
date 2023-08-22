@@ -7,13 +7,8 @@ import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons } f
 import { StatusBarHeight } from '../componets/shared';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import Constants from 'expo-constants';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import StyledTextInput from '../componets/Inputs/StyledTextInput';
-import SmallTexts from '../componets/Texts/SmallTexts';
-import BigTexts from '../componets/Texts/BigTexts';
-import { MaterialIndicator } from 'react-native-indicators';
+import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
+import { color } from './color';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import AppLoading from 'expo-app-loading';
@@ -21,9 +16,11 @@ import TitleText from '../componets/Texts/TitleText';
 import { newGrey } from './color';
 import small from '../assets/small.png';
 import medium from '../assets/medium.png';
+import cash from '../assets/cash.png';
 import large from '../assets/large.png';
 import huge from '../assets/huge.png';
 import RegularButton from '../componets/Buttons/RegularButton';
+import useUser from '../hook/useUser';
 
 
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
@@ -31,7 +28,7 @@ import RegularButton from '../componets/Buttons/RegularButton';
 
 export default function TruckSelection(params) {
   const navigation = params.navigation;
-
+  const { userData, isLoading: isUserDataLoading } = useUser();
   const { width, height } = Dimensions.get("window");
   const [position, setPosition] = useState({
     latitude: 0,
@@ -63,6 +60,30 @@ export default function TruckSelection(params) {
   const [active1, setActive1] = useState(false);
   const [active2, setActive2] = useState(false);
   const [active3, setActive3] = useState(false);
+  const [active4, setActive4] = useState(true);
+  const [active5, setActive5] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      //  console.log('user data ', userData)
+    }
+  }, [userData, isUserDataLoading])
+
+
+  const cashActive = () => {
+
+    if (active5 == true) {
+      setActive5(false);
+      setActive4(true);
+    }
+  }
+  const cardActive = () => {
+    if (active4 == true) {
+      setActive4(false);
+      setActive5(true);
+    };
+  }
 
   const sActive = () => {
 
@@ -71,7 +92,7 @@ export default function TruckSelection(params) {
       setActive2(false);
       setActive3(false);
       setActive(true);
-      setSelectTruck('Select Small')
+      setSelectTruck('Request Small Truck')
     }
   }
   const mActive = () => {
@@ -81,7 +102,7 @@ export default function TruckSelection(params) {
       setActive2(false);
       setActive(false);
       setActive1(true);
-      setSelectTruck('Select Medium')
+      setSelectTruck('Request Medium Truck')
     };
   }
   const lActive = () => {
@@ -90,7 +111,7 @@ export default function TruckSelection(params) {
       setActive1(false);
       setActive2(true);
       setActive3(false);
-      setSelectTruck('Select Large')
+      setSelectTruck('Request Large Truck')
     }
   }
   const hActive = () => {
@@ -99,11 +120,23 @@ export default function TruckSelection(params) {
       setActive(false);
       setActive2(false);
       setActive3(true);
-      setSelectTruck('Select Huge')
+      setSelectTruck('Request Huge Truck')
     };
   }
 
+  const bottomSheetModalRef = useRef(null);
 
+  // variables
+  const snapPoints = useMemo(() => ['45%', '45%'], []);
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present();
+    setModalOpen(true);
+  }, []);
+  const handleSheetChanges = useCallback((index) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
 
   let [fontsLoaded] = useFonts({
@@ -125,8 +158,8 @@ export default function TruckSelection(params) {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      {
-        <View style={{ paddingHorizontal: 0, height: '100%' }}>
+      <BottomSheetModalProvider style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
             style={{ width: width, height: '57.5%' }}
             provider={PROVIDER_GOOGLE}
@@ -140,6 +173,7 @@ export default function TruckSelection(params) {
 
 
           <BottomSheet
+            disabled={modalOpen}
             snapPoints={[500, 700]}
             overDragResistanceFactor={0}
             backgroundStyle={{
@@ -149,47 +183,47 @@ export default function TruckSelection(params) {
             }}
           >
             <View style={styles.truckSelectionContainer}>
-              
-              <Text style={{fontSize: 20, fontFamily: 'Manrope_700Bold', marginBottom: 10}}>Select Truck</Text>
+
+              <Text style={{ fontSize: 24, fontFamily: 'Manrope_700Bold', marginBottom: 10 }}>Select Truck</Text>
 
 
               <View style={{ flexDirection: 'row', marginBottom: 10, height: '23%', justifyContent: 'space-between' }}>
-                <TouchableOpacity style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center",borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
                   <View style={styles.iconView}>
-                    <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain" , opacity: active ? 1 : 0.5}} />
+                    <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active ? 1 : 0.5 }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold',fontSize: 15,color: active ? 'black':'#7D7878',textAlign: 'center'}}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active ? 'black' : '#7D7878', textAlign: 'center' }}>
                     Small
                   </Text>
                 </TouchableOpacity>
-                
-                <TouchableOpacity style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#CFCFCF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
+
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#CFCFCF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
                   <View style={styles.iconView}>
                     <Image source={medium} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active1 ? 1 : 0.5 }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold',fontSize: 15,color: active1 ? 'black':'#7D7878',textAlign: 'center'}}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active1 ? 'black' : '#7D7878', textAlign: 'center' }}>
                     Medium
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#CFCFCF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#CFCFCF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
                   <View style={styles.iconView}>
                     <Image source={large} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active2 ? 1 : 0.5 }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold',fontSize: 15,color: active2 ? 'black':'#7D7878',textAlign: 'center'}}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active2 ? 'black' : '#7D7878', textAlign: 'center' }}>
                     Large
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "#CFCFCF", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "#CFCFCF", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
                   <View style={styles.iconView}>
                     <Image source={huge} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active3 ? 1 : 0.5 }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold',fontSize: 15,color: active3 ? 'black':'#7D7878',textAlign: 'center'}}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active3 ? 'black' : '#7D7878', textAlign: 'center' }}>
                     Huge
                   </Text>
                 </TouchableOpacity>
@@ -215,16 +249,16 @@ export default function TruckSelection(params) {
                   <View style={{ flexDirection: 'row' }}>
                     <MaterialCommunityIcons name="weight" size={24} color="#F76A03" />
                     {
-                      active && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>1 t</Text>
+                      active && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>1 t(tonnes)</Text>
                     }
                     {
-                      active1 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,5 t</Text>
+                      active1 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,5 t(tonnes)</Text>
                     }
                     {
-                      active2 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,7 t</Text>
+                      active2 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,7 t(tonnes)</Text>
                     }
                     {
-                      active3 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>9 t</Text>
+                      active3 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>9 t (tonnes)</Text>
                     }
                   </View>
                   <View style={{ flexDirection: 'row' }}>
@@ -279,16 +313,25 @@ export default function TruckSelection(params) {
                 </View>
               </View>
 
-              <TouchableOpacity style={{ height: '12%', paddingVertical: 10, paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <TouchableOpacity style={{ height: '12%', paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
                 <Text style={{ fontSize: 16, fontFamily: 'Manrope_600SemiBold' }}>Payment Method</Text>
-                <TouchableOpacity><Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', color: '#F76A03' }}>Cash</Text></TouchableOpacity>
+                <View style={{ width: '15%', height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, }}>
+                  {
+                    active4 ? (
+                    <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
+                    ) : (
+                      <MaterialCommunityIcons name="credit-card" size={22} color="black" />
+                    )
+                  }
+                  
+                </View>
               </TouchableOpacity>
 
 
 
             </View>
 
-          </BottomSheet> 
+          </BottomSheet>
 
 
           <View style={styles.backAndButton}>
@@ -297,39 +340,86 @@ export default function TruckSelection(params) {
             </TouchableOpacity>
             <View style={{ width: '80%' }}>
               {
-                active && <RegularButton>Select Small</RegularButton>
+                active && <RegularButton onPress={() => {navigation.navigate('Location')}}>Request Small Truck</RegularButton>
               }
               {
-                active1 && <RegularButton>{selectTruck}</RegularButton>
+                active1 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
               }
               {
-                active2 && <RegularButton>{selectTruck}</RegularButton>
+                active2 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
               }
               {
-                active3 && <RegularButton>{selectTruck}</RegularButton>
+                active3 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
               }
-              
+
             </View>
           </View>
 
-          
+
 
 
 
 
           <StatusBar style="dark" />
         </View>
-      }
+
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={snapPoints}
+          backgroundStyle={{ borderRadius: 20, backgroundColor: '#E8E9EB' }}
+          onDismiss={() => setModalOpen(false)}
+        >
+          <View style={styles.paymentOptions}>
+
+            <TouchableOpacity style={styles.option} onPress={cashActive}>
+              <View style={styles.iconView2}>
+                <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
+              </View>
+
+              <View style={{ width: '70%', paddingLeft: 15 }}>
+                <Text style={styles.optionText}>
+                  Cash
+                </Text>
+              </View>
+
+              <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <MaterialCommunityIcons name={!active4 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.option} onPress={cardActive}>
+              <View style={styles.iconView2}>
+                <MaterialCommunityIcons name="credit-card" size={22} color="black" />
+              </View>
+
+              <View style={{ width: '70%', paddingLeft: 15 }}>
+                <Text style={styles.optionText}>
+                  Credit / Debit Card
+                </Text>
+              </View>
+
+              <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <MaterialCommunityIcons name={!active5 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
+              </View>
+            </TouchableOpacity>
+
+
+          </View>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
+
+
     </GestureHandlerRootView>
 
 
 
 
   )
- // small truck - 1t
- //medium truck - 1.5t
- //large truck - 1.7t
- //huge truck -9t
+  // small truck - 1t
+  //medium truck - 1.5t
+  //large truck - 1.7t
+  //huge truck -9t
 
 
 }
@@ -457,12 +547,46 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#383838',
   },
-  truckNameText: {
-   
-  },
   priceText: {
     fontFamily: 'Manrope_600SemiBold',
     fontSize: 18,
+    color: '#383838',
+  },
+  iconView2: {
+    width: '15%',
+    height: '100%',
+    backgroundColor: "#F6F6F6",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  paymentOptions: {
+    padding: 20,
+    backgroundColor: '#E8E9EB',
+    height: '100%'
+  },
+  option: {
+    height: 60,
+    width: '100%',
+    backgroundColor: 'white',
+    marginBottom: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: "center",
+    flexDirection: 'row',
+    shadowColor: 'lightgray',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 10,
+  },
+  optionText: {
+    fontFamily: 'Manrope_700Bold',
+    fontSize: 16,
     color: '#383838',
   },
 

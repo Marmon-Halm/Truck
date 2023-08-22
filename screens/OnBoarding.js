@@ -142,13 +142,9 @@ function OnBoarding({ navigation }) {
 
     let [fontsLoaded] = useFonts({
         Manrope_400Regular,
-        Montserrat_400Regular,
         Manrope_500Medium,
-        Montserrat_500Medium,
         Manrope_600SemiBold,
-        Montserrat_600SemiBold,
         Manrope_700Bold,
-        Montserrat_700Bold,
     });
 
 

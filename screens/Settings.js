@@ -268,7 +268,7 @@ export default function Settings(params) {
                             </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.option} onPress={mtnActive}>
+                        {/* <TouchableOpacity style={styles.option} onPress={mtnActive}>
                             <View style={styles.iconView}>
                                 <Image source={mtn} style={{ width: 24, height: 22, borderRadius: 5 }} />
                             </View>
@@ -298,7 +298,7 @@ export default function Settings(params) {
                             <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
                                 <MaterialCommunityIcons name={!active2 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
                             </View>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity style={styles.option} onPress={cardActive}>
                             <View style={styles.iconView}>

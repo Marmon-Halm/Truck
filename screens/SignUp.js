@@ -12,7 +12,6 @@ import RNPickerSelect from 'react-native-picker-select';
 import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import RegularTexts from '../componets/Texts/RegularTexts';
-import StyledTextInput from '../componets/Inputs/StyledTextInput';
 import MsgText from '../componets/Texts/MsgText';
 import RegularButton from '../componets/Buttons/RegularButton';
 import { Formik } from 'formik';
@@ -32,6 +31,7 @@ import StyledInput from '../componets/Inputs/StyledInput';
 import BottomButton from '../componets/Buttons/BottomButton';
 import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
 import ToastrForSignUp from '../componets/Toastr Notification/ToastForSignUp';
+import StyledTextInput from '../componets/Inputs/StyledTextInput';
 // import { firebase } from '../config';
 
 
@@ -117,10 +117,13 @@ export default function SignUp(params) {
       const response = await createUserWithEmailAndPassword(auth, email, password)
       const user = response.user;
 
-      successToastr();
+      
+      setLoading(false);
       // showModal('success', 'Great!', 'Verification Email Sent', 'Close');
 
       // Create a new user
+      await sendEmailVerification(user);
+      
       try {
         await setDoc(doc(db, "users", user?.uid), {
           uid: user?.uid,
@@ -129,13 +132,17 @@ export default function SignUp(params) {
           email: email,
           phoneNumber: phoneNumber,
         })
-
           .then((res) => {
+            successToastr();
             setLoading(false);
-            navigation.navigate('Login')
+
+            setTimeout(() => {
+              navigation.navigate('Login')
+            }, 3000)
+            
           });
 
-        await sendEmailVerification(user);
+       
       } catch (error) {
         setLoading(false);
         console.log(error);
@@ -249,7 +256,7 @@ export default function SignUp(params) {
           }
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values, isSubmitting }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, isSubmitting, }) => (
           <>
 
             <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>First Name</RegularTexts>
@@ -307,14 +314,12 @@ export default function SignUp(params) {
             </MsgText>
 
             <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Password</RegularTexts>
-            <StyledInput
-
+            <StyledTextInput
               icon="lock-outline"
               onChangeText={(text) => {
                 setPassword(text)
                 setPwdValid(PWD_REGEX.test(text))
                 setCheckboxEnabled(true)
-
               }}
               isPassword={true}
               value={password}
@@ -421,8 +426,8 @@ const styles = StyleSheet.create({
     paddingRight: 55,
     borderRadius: 10,
     backgroundColor: "#FAFAFA",
-    borderWidth: 2,
-    borderColor: '#EDEDED'
+    borderWidth: 1.5,
+    borderColor: '#DCDCDC'
   },
   checkboxContainer: {
     justifyContent: 'center',
