@@ -10,8 +10,8 @@ import {
     TouchableOpacity,
     useWindowDimensions,
 } from 'react-native';
-import AppLoading from 'expo-app-loading';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, } from '@expo-google-fonts/manrope';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 
 // slides
@@ -140,16 +140,17 @@ function OnBoarding({ navigation }) {
         setCurrentSlideIndex(lastSlideIndex)
     }
 
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-    });
-
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
 
     if (!fontsLoaded) {
-        return <AppLoading />;
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
     }
 
 

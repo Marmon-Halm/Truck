@@ -1,9 +1,8 @@
 import React from 'react';
 import { styled } from 'styled-components/native';
 import { color } from '../../screens/color';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
-
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 const { smallTextColor, newGrey } = color;
 
 
@@ -17,20 +16,19 @@ const StyledText = styled.Text`
 
 const SmallTexts = (props) => {
 
+  const [fontsLoaded] = useFonts({
+    'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
+    'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
+    'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
+  })
 
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold,
-        Manrope_700Bold
-      });
-    
-    
-      if (!fontsLoaded) {
-        return <AppLoading />;
-      }
-    
-    return  <StyledText {...props}>{ props.children }</StyledText>
+  if (!fontsLoaded) {
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
+  }
+
+  return <StyledText {...props}>{props.children}</StyledText>
 
 };
 

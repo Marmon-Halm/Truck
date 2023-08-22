@@ -7,7 +7,7 @@ import Payment from "../screens/Payment";
 import CreditCard from "../screens/CreditCard";
 import Momo from "../screens/Momo";
 import VodaCash from "../screens/VodaCash";
-import Location from "../screens/Location";
+import LocationsPage from "../screens/LocationsPage";
 import TruckSelection from "../screens/TruckSelection";
 
 
@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 
 export default function UserNavigator() {
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Location">
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
             <Stack.Screen name="Home" component={Home} />
 
             <Stack.Screen name="Trips" component={Trips} />
@@ -28,7 +28,7 @@ export default function UserNavigator() {
             <Stack.Screen name="Payment" component={Payment} />
             <Stack.Screen name="Momo" component={Momo} />
             <Stack.Screen name="VodaCash" component={VodaCash} />
-            <Stack.Screen name="Location" component={Location} />
+            <Stack.Screen name="LocationsPage" component={LocationsPage} />
             <Stack.Screen name="TruckSelection" component={TruckSelection} />
             <Stack.Screen name="CreditCard" component={CreditCard} />
         </Stack.Navigator>

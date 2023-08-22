@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { View, Image, StyleSheet, Alert } from 'react-native';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import RegularTexts from '../componets/Texts/RegularTexts';
@@ -81,7 +81,7 @@ export default function Login(params) {
     setSubmitting(true);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        
+
         const user = userCredential.user;
         if (user.emailVerified) {
           setUserLoggedIn(true);
@@ -93,7 +93,7 @@ export default function Login(params) {
           setLoading(false);
           setSubmitting(false);
         }
-        
+
       })
       .catch((error) => {
         // setMessage('Login failed: ' + error.message);
@@ -106,20 +106,20 @@ export default function Login(params) {
       });
   };
 
-  
 
-  let [fontsLoaded] = useFonts({
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-  });
 
+  // FONTS
+  const [fontsLoaded] = useFonts({
+    'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+    'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+    'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+  })
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
   }
-
   return <MainContainer style={{ paddingTop: StatusBarHeight }}>
     <KeyboardAvoiding>
 
@@ -224,24 +224,24 @@ export default function Login(params) {
       </Formik>
 
       {
-        toastrVisible ? ( <ToastrSuccess
-        bodyText={bodyText}
-      />
-      ) : null
+        toastrVisible ? (<ToastrSuccess
+          bodyText={bodyText}
+        />
+        ) : null
 
       }
 
       {
-        toastrVisible1 ? (  <ToastrError
+        toastrVisible1 ? (<ToastrError
           bodyText={bodyText1}
         />
-      ) : null
+        ) : null
 
       }
 
-      
 
-     
+
+
 
       <StatusBar style="dark" />
 

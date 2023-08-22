@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Button, ImageBackground } from 'react-native';
-import {
-    useFonts,
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-    Manrope_800ExtraBold
-} from '@expo-google-fonts/manrope';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from '@expo/vector-icons';
@@ -23,22 +17,18 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export default function Trips(params) {
     const navigation = params.navigation;
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-        Manrope_800ExtraBold
-    });
-
-
+      // FONTS
+      const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
 
     if (!fontsLoaded) {
-        return <AppLoading />;
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
     }
-
-
-
 
     return (
 

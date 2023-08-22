@@ -21,7 +21,9 @@ import large from '../assets/large.png';
 import huge from '../assets/huge.png';
 import RegularButton from '../componets/Buttons/RegularButton';
 import useUser from '../hook/useUser';
+import * as SplashScreen from 'expo-splash-screen';
 
+SplashScreen.preventAutoHideAsync();
 
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
@@ -125,11 +127,7 @@ export default function TruckSelection(params) {
   }
 
   const bottomSheetModalRef = useRef(null);
-
-  // variables
   const snapPoints = useMemo(() => ['45%', '45%'], []);
-
-  // callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
     setModalOpen(true);
@@ -138,18 +136,17 @@ export default function TruckSelection(params) {
     console.log('handleSheetChanges', index);
   }, []);
 
-
-  let [fontsLoaded] = useFonts({
-
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-    Manrope_800ExtraBold
-  });
+  // FONTS
+  const [fontsLoaded] = useFonts({
+    'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+    'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+    'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+  })
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
   }
 
 
@@ -318,12 +315,12 @@ export default function TruckSelection(params) {
                 <View style={{ width: '15%', height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, }}>
                   {
                     active4 ? (
-                    <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
+                      <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
                     ) : (
                       <MaterialCommunityIcons name="credit-card" size={22} color="black" />
                     )
                   }
-                  
+
                 </View>
               </TouchableOpacity>
 
@@ -340,16 +337,16 @@ export default function TruckSelection(params) {
             </TouchableOpacity>
             <View style={{ width: '80%' }}>
               {
-                active && <RegularButton onPress={() => {navigation.navigate('Location')}}>Request Small Truck</RegularButton>
+                active && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>Request Small Truck</RegularButton>
               }
               {
-                active1 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
+                active1 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
               }
               {
-                active2 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
+                active2 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
               }
               {
-                active3 && <RegularButton onPress={() => {navigation.navigate('Location')}}>{selectTruck}</RegularButton>
+                active3 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
               }
 
             </View>
@@ -591,28 +588,6 @@ const styles = StyleSheet.create({
   },
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/* <View style={styles.rideSearcher}>
-  <Text style={{ fontSize: 20, fontFamily: 'Manrope_600SemiBold' }}>Looking for a ride</Text>
-  <View>
-    <MaterialIndicator color='black' size={20} trackWidth={30 / 10} />
-  </View>
-</View> */}
-
-
-
 
 
 

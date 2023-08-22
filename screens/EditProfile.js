@@ -1,13 +1,10 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, Image, Dimensions, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Image, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import profile from '../assets/profileD.png'
 import { Formik } from 'formik';
-import StyledTextInput from '../componets/Inputs/StyledTextInput';
 import MsgText from '../componets/Texts/MsgText';
-import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import BottomButton from '../componets/Buttons/BottomButton';
 import RegularTexts from '../componets/Texts/RegularTexts';

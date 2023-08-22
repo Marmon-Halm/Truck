@@ -6,8 +6,8 @@ import Checkbox from 'expo-checkbox';
 import 'react-native-gesture-handler';
 import ghana from '../assets/ghana.png'
 import { AntDesign } from '@expo/vector-icons';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import RNPickerSelect from 'react-native-picker-select';
 import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
@@ -117,13 +117,13 @@ export default function SignUp(params) {
       const response = await createUserWithEmailAndPassword(auth, email, password)
       const user = response.user;
 
-      
+
       setLoading(false);
       // showModal('success', 'Great!', 'Verification Email Sent', 'Close');
 
       // Create a new user
       await sendEmailVerification(user);
-      
+
       try {
         await setDoc(doc(db, "users", user?.uid), {
           uid: user?.uid,
@@ -139,10 +139,10 @@ export default function SignUp(params) {
             setTimeout(() => {
               navigation.navigate('Login')
             }, 3000)
-            
+
           });
 
-       
+
       } catch (error) {
         setLoading(false);
         console.log(error);
@@ -178,16 +178,17 @@ export default function SignUp(params) {
 
   const navigation = params.navigation;
 
-  let [fontsLoaded] = useFonts({
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold
-  });
-
+  // FONTS
+  const [fontsLoaded] = useFonts({
+    'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+    'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+    'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+  })
 
   if (!fontsLoaded) {
-    return <AppLoading />;
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
   }
 
 
@@ -343,7 +344,7 @@ export default function SignUp(params) {
         buttonText={buttonText}
       />
 
-      
+
 
 
 

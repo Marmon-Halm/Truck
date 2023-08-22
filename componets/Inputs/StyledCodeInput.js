@@ -3,8 +3,9 @@ import { styled } from 'styled-components/native';
 import { StatusBarHeight } from '../shared';
 import { color } from '../../screens/color';
 const { white, newGrey, killed, primary, backgrey} = color;
-import { useFonts,  Manrope_600SemiBold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
 
 
 
@@ -54,10 +55,18 @@ const CodeInputText = styled.Text`
 
 const StyledCodeInput = ({ code, setCode, maxLength, setpinReady }) => {
 
-    let [fontsLoaded] = useFonts({
-        Manrope_600SemiBold,
-    });
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
+    })
 
+    if (!fontsLoaded) {
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
+    }
 
 
     // ref for text input

@@ -2,8 +2,8 @@ import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { StatusBarHeight } from '../componets/shared';
-import { useFonts, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import mtn from '../assets/mtn.jpg';
 import voda from '../assets/voda.png';
@@ -12,6 +12,7 @@ import StyledInput from '../componets/Inputs/StyledInput';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import BottomButton from '../componets/Buttons/BottomButton';
+
 
 
 const CreditCard = (params) => {
@@ -24,15 +25,17 @@ const CreditCard = (params) => {
     const [cardNumber, setCardNumber] = useState("");
     const [cardExpiry, setCardExpiry] = useState("");
     const [cardCVC, setCardCVC] = useState("");
-
-    let [fontsLoaded] = useFonts({
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-        Manrope_800ExtraBold
-    });
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
 
     if (!fontsLoaded) {
-        return <AppLoading />;
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
     }
 
     return (

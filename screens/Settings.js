@@ -2,33 +2,21 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'reac
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Image } from 'react-native';
-import {
-    useFonts,
-    Manrope_400Regular,
-    Manrope_500Medium,
-    Manrope_600SemiBold,
-    Manrope_700Bold,
-    Manrope_800ExtraBold
-} from '@expo-google-fonts/manrope';
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from '@expo/vector-icons';
-import Modal from "react-native-modal";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import AppLoading from 'expo-app-loading';
 import { Feather } from '@expo/vector-icons';
 import { signOut } from 'firebase/auth';
 import { auth } from '../config';
 import { UserContext } from '../contexts/UserContext';
 import { StatusBarHeight } from '../componets/shared';
-import mtn from '../assets/mtn.jpg';
-import voda from '../assets/voda.png';
 import cash from '../assets/cash.png';
-import Animated, { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp } from "react-native-reanimated";
 import { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomButton from '../componets/Buttons/BottomButton';
 import { color } from './color';
 import useUser from '../hook/useUser';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 
 
@@ -38,23 +26,23 @@ export default function Settings(params) {
     const navigation = params.navigation;
 
     const [loggingOut, setLoggingOut] = useState(false);
-    const { userData, isLoading: isUserDataLoading } = useUser();   
+    const { userData, isLoading: isUserDataLoading } = useUser();
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-    const {setUserLoggedIn, setPreviouslyLoggedIn} = useContext(UserContext);
+    const { setUserLoggedIn, setPreviouslyLoggedIn } = useContext(UserContext);
     const [active, setActive] = useState(true);
     const [active1, setActive1] = useState(false);
     const [active2, setActive2] = useState(false);
     const [active3, setActive3] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
 
-    useEffect(()=> {
-        if(userData){
-          //  console.log('user data ', userData)
+    useEffect(() => {
+        if (userData) {
+            //  console.log('user data ', userData)
         }
     }, [userData, isUserDataLoading])
 
-    
+
     const cashActive = () => {
 
         if (active1 == true || active2 == true || active3 == true) {
@@ -119,17 +107,17 @@ export default function Settings(params) {
 
         // clear user credentials
     }
-
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-        Manrope_800ExtraBold
-    });
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
 
     if (!fontsLoaded) {
-        return <AppLoading />;
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
     }
 
     return (

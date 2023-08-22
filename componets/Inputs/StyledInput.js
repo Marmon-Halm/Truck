@@ -7,8 +7,8 @@ import mtn from '../../assets/mtn.jpg'
 import voda from '../../assets/voda.png'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { color } from '../../screens/color';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 
 
@@ -64,11 +64,17 @@ const RightIcon = styled.TouchableOpacity`
 
 const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, isMat, isMomo, isVoda, valid, ...props }) => {
 
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold
-    });
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
+    })
+
+    if (!fontsLoaded) {
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
+    }
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);
@@ -84,9 +90,7 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
         setInputBackgroundColor(killed);
     };
 
-    if (!fontsLoaded) {
-        return <AppLoading />;
-    }
+    
 
     return (
         <InputContainer style={{ borderWidth: 1.5, borderColor: '#DCDCDC', backgroundColor: "#FAFAFA" }}>

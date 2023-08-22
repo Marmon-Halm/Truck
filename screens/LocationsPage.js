@@ -1,19 +1,16 @@
-import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity, Image } from 'react-native';
-import { StatusBarHeight } from '../componets/shared';
-import { useFonts, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import Animated, { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp } from "react-native-reanimated";
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { MaterialIndicator } from 'react-native-indicators';
+import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
 
-const Location = (params) => {
+const LocationsPage = (params) => {
     const navigation = params.navigation;
-
+    const [location, setLocation] = useState(null);
     const [position, setPosition] = useState({
         latitude: 0,
         longitude: 0,
@@ -55,15 +52,17 @@ const Location = (params) => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [value, setValue] = useState("");
 
-
-    let [fontsLoaded] = useFonts({
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-        Manrope_800ExtraBold
-    });
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
 
     if (!fontsLoaded) {
-        return <AppLoading />;
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
     }
 
 
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
 
 });
 
-export default Location;
+export default LocationsPage;
 
 
 

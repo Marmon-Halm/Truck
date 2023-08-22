@@ -3,8 +3,8 @@ import { useState } from "react";
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import RegularTexts from '../componets/Texts/RegularTexts';
@@ -47,12 +47,19 @@ export default function ResetP(params) {
 
     const navigation = params.navigation;
 
-    let [fontsLoaded] = useFonts({
-        Manrope_400Regular,
-        Manrope_500Medium,
-        Manrope_600SemiBold,
-        Manrope_700Bold
-    });
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
+
+    if (!fontsLoaded) {
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
+    }
+
     const auth = getAuth();
     const buttonHandler = () => {
         if (modalMessageType === "success") {
@@ -127,11 +134,6 @@ export default function ResetP(params) {
             setSubmitting(false)
         }
     };
-
-
-    if (!fontsLoaded) {
-        return <AppLoading />;
-    }
 
     return <MainContainer style={{ paddingTop: StatusBarHeight }}>
         <AntDesign name="arrowleft" size={30} color="black" onPress={() => { navigation.goBack() }} />
