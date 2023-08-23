@@ -1,19 +1,13 @@
 import React, { useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Dimensions, Image, FlatList } from 'react-native';
 import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_700Bold, Manrope_600SemiBold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
-import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { StatusBarHeight } from '../componets/shared';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
-import * as Location from 'expo-location';
+import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons, Foundation } from '@expo/vector-icons';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 import { color } from './color';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import RegularTexts from '../componets/Texts/RegularTexts';
-import AppLoading from 'expo-app-loading';
-import TitleText from '../componets/Texts/TitleText';
-import { newGrey } from './color';
 import small from '../assets/small.png';
 import medium from '../assets/medium.png';
 import cash from '../assets/cash.png';
@@ -22,14 +16,20 @@ import huge from '../assets/huge.png';
 import RegularButton from '../componets/Buttons/RegularButton';
 import useUser from '../hook/useUser';
 import * as SplashScreen from 'expo-splash-screen';
+import { useSelector } from 'react-redux';
+import { selectDestination, selectOrigin, } from '../slices/navSlice';
+import MapViewDirections from 'react-native-maps-directions';
+import { GOOGLE_MAPS_APIKEY } from "@env";
+
 
 SplashScreen.preventAutoHideAsync();
-
-// apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
 
 export default function TruckSelection(params) {
   const navigation = params.navigation;
+  const origin = useSelector(selectOrigin);
+  const destination = useSelector(selectDestination);
+  const mapRef = useRef(null);
   const { userData, isLoading: isUserDataLoading } = useUser();
   const { width, height } = Dimensions.get("window");
   const [position, setPosition] = useState({
@@ -39,23 +39,11 @@ export default function TruckSelection(params) {
     longitudeDelta: 0.0421,
   });
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      console.log(location)
-      setPosition({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.004,
-        longitudeDelta: 0.005,
-      });
-    })();
-  }, []);
+  // useEffect(() => {
+  //   setPosition({
+
+  //   })();
+  // }, []);
 
   const [selectTruck, setSelectTruck] = useState('');
   const [active, setActive] = useState(true);
@@ -71,6 +59,14 @@ export default function TruckSelection(params) {
       //  console.log('user data ', userData)
     }
   }, [userData, isUserDataLoading])
+
+  useEffect(() => {
+    if (!origin || !destination) return 
+
+    mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
+      edgePadding: {top: 20, right: 20, bottom: 20, left: 20}
+    })
+  }, [origin, destination])
 
 
   const cashActive = () => {
@@ -151,6 +147,8 @@ export default function TruckSelection(params) {
 
 
 
+
+
   // <View style={{height: '100%', position: 'relative'}}>
 
   return (
@@ -158,12 +156,63 @@ export default function TruckSelection(params) {
       <BottomSheetModalProvider style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
+            ref={mapRef}
             style={{ width: width, height: '57.5%' }}
             provider={PROVIDER_GOOGLE}
-            initialRegion={position}
-            region={position}
-            showsUserLocation={true}
+            initialRegion={{
+              latitude: origin.location.lat,
+              longitude: origin.location.lng,
+              latitudeDelta: 0.025,
+              longitudeDelta: 0.025,
+            }}
           >
+
+            {
+              origin && destination && (
+                <MapViewDirections
+                  origin={origin.description}
+                  destination={destination.description}
+                  apikey={GOOGLE_MAPS_APIKEY}
+                  strokeWidth={3}
+                  strokeColor='black'
+                />
+              )
+            }
+
+            {
+              origin?.location && (
+                <Marker
+                  coordinate={{
+                    latitude: origin.location.lat,
+                    longitude: origin.location.lng,
+                  }}
+                  identifier='origin'
+                >
+                  <MaterialIcons name="location-pin" size={35} color="black" />
+                  <Callout style={{ width: 85 }}>
+                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{origin.description}</Text>
+                  </Callout>
+                </Marker>
+              )
+            }
+
+            {
+              destination?.location && (
+                <Marker
+                  coordinate={{
+                    latitude: origin.location.lat,
+                    longitude: origin.location.lng,
+                  }}
+                  identifier='destination'
+                >
+                  <MaterialIcons name="location-pin" size={35} color="black" />
+                  <Callout style={{ width: 85 }}>
+                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{origin.description}</Text>
+                  </Callout>
+                </Marker>
+              )
+            }
+
           </MapView>
 
 
@@ -171,7 +220,7 @@ export default function TruckSelection(params) {
 
           <BottomSheet
             disabled={modalOpen}
-            snapPoints={[500, 700]}
+            snapPoints={[530, 700]}
             overDragResistanceFactor={0}
             backgroundStyle={{
               borderRadius: 30, shadowOffset: { width: 0, height: 0 },
@@ -183,9 +232,25 @@ export default function TruckSelection(params) {
 
               <Text style={{ fontSize: 24, fontFamily: 'Manrope_700Bold', marginBottom: 10 }}>Select Truck</Text>
 
+              {/* <FlatList
+                data={carTypes}
+                horizontal
+                bounces={false}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => 
+                    <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '70%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
+                      <View style={styles.iconView}>
+                        <Image source={item.image } style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active ? 1 : 0.5 }} />
+                      </View>
 
-              <View style={{ flexDirection: 'row', marginBottom: 10, height: '23%', justifyContent: 'space-between' }}>
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
+                      <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active ? 'black' : '#7D7878', textAlign: 'center' }}>
+                        {item.title}
+                      </Text>
+                    </TouchableOpacity>
+                }
+              /> */}
+              <View style={{ flexDirection: 'row', marginBottom: 15, height: '23%', justifyContent: 'space-between' }}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
                   <View style={styles.iconView}>
                     <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active ? 1 : 0.5 }} />
                   </View>
@@ -195,7 +260,7 @@ export default function TruckSelection(params) {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#CFCFCF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#CFCFCF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
                   <View style={styles.iconView}>
                     <Image source={medium} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active1 ? 1 : 0.5 }} />
                   </View>
@@ -205,7 +270,7 @@ export default function TruckSelection(params) {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#CFCFCF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#CFCFCF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
                   <View style={styles.iconView}>
                     <Image source={large} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active2 ? 1 : 0.5 }} />
                   </View>
@@ -215,7 +280,7 @@ export default function TruckSelection(params) {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '22%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "#CFCFCF", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "#CFCFCF", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
                   <View style={styles.iconView}>
                     <Image source={huge} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active3 ? 1 : 0.5 }} />
                   </View>
@@ -225,6 +290,9 @@ export default function TruckSelection(params) {
                   </Text>
                 </TouchableOpacity>
               </View>
+
+
+
 
               <View style={styles.tripInfo} >
                 <View style={styles.tripText}>
@@ -498,7 +566,7 @@ const styles = StyleSheet.create({
     height: '25%',
     width: '100%',
     backgroundColor: '#F1F1F1',
-    marginBottom: 10,
+    marginBottom: 15,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,
@@ -509,7 +577,7 @@ const styles = StyleSheet.create({
     height: '27%',
     width: '100%',
     backgroundColor: '#F1F1F1',
-    marginBottom: 10,
+    marginBottom: 15,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,

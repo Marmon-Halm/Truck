@@ -13,8 +13,6 @@ import {
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
-
-// slides
 const slides = [
     {
         id: '1',
@@ -41,6 +39,8 @@ const slides = [
         description: "You can reach our team through the help center. Click to get started!",
     },
 ];
+// slides
+
 
 const Slide = ({ item }) => {
 

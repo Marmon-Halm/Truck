@@ -5,6 +5,7 @@ import Navigation from './navigation';
 import { UserProvider } from './providers/userProvide';
 import { Provider } from 'react-redux';
 import * as SplashScreen from 'expo-splash-screen';
+import { store } from './store';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -22,7 +23,7 @@ export default function App() {
 
 
   return (
-    <Provider>
+    <Provider store={store}>
       <UserProvider >
         <Navigation />
       </UserProvider>

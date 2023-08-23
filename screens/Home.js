@@ -13,13 +13,17 @@ import Animated, { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-
+import { GOOGLE_MAPS_APIKEY } from "@env";
+import { useDispatch, useSelector } from 'react-redux';
+import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
 
 export default function Home(params) {
   const navigation = params.navigation;
+  const dispatch = useDispatch();
   const [value, setValue] = useState("");
+  const origin = useSelector(selectOrigin);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,7 +61,7 @@ export default function Home(params) {
       setPosition({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.004,
+        latitudeDelta: 0.005,
         longitudeDelta: 0.005,
       });
 
@@ -65,6 +69,7 @@ export default function Home(params) {
 
     })();
   }, []);
+
 
   let text = 'Waiting..';
   if (errorMsg) {
@@ -117,6 +122,8 @@ export default function Home(params) {
             provider={PROVIDER_GOOGLE}
             initialRegion={position}
             region={position}
+            followsUserLocation={true}
+            userLocationUpdateInterval={2000}
             showsUserLocation={true}
           />
 
@@ -180,7 +187,7 @@ export default function Home(params) {
             entering={FadeInUp}
             exiting={FadeOutDown}
           >
-            <View style={{ height: '100%', width: windowWidth,  backgroundColor: "#fff", paddingHorizontal: 20 }}>
+            <View style={{ height: '100%', width: windowWidth, backgroundColor: "#fff" }}>
               {/* <View style={styles.topNav}>
                 <View style={{ width: "10%" }}>
                   <AntDesign name="close" size={26} style={{ textAlign: "left" }} color="black" />
@@ -192,72 +199,64 @@ export default function Home(params) {
                 {/* <MaterialCommunityIcons name="map-marker" size={22} color="#737373" /> */}
                 <GooglePlacesAutocomplete
                   placeholder='Pick Up Location'
+                  fetchDetails={true}
                   onPress={(data, details = null) => {
-                    console.log(data.structured_formatting.main_text)
-                  
+                    console.log(details.formatted_address)
+                    dispatch(
+                      setOrigin({
+                        location: details.geometry.location,
+                        description: data.description,
+                      })
+                    );
+
+                    dispatch(setDestination(null));
                     setPickupSet(true);
                   }}
                   selectProps={{
                     value,
                     onPress: setValue,
                   }}
+                  // predefinedPlaces={[
+                  //   {
+                  //     type: 'Home',
+                  //     description: origin.description,
+                  //     geometry: {location: {lat: origin.location.lat, lng: origin.location.lng}},
+                  //   },
+                  // ]}
+                  nearbyPlacesAPI='GooglePlacesSearch'
+                  debounce={400}
                   minLength={2}
+                  returnKeyType={"search"}
                   keyboardAppearance="light"
                   listViewDisplayed={true}
+                  enablePoweredByContainer={false}
                   autoFocus="true"
                   query={{
-                    key: 'AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4',
+                    key: GOOGLE_MAPS_APIKEY,
                     language: 'en',
                   }}
                   textInputProps={{
                     placeholderTextColor: "#737373",
                   }}
-                  styles={{
-                    textInput: {
-                      height: '100%',
-                      color: '#000',
-                      fontSize: 16,
-                      backgroundColor: '#FAFAFA',
-                      fontFamily: "Manrope_500Medium",
-                    },
-
-                    predefinedPlacesDescription: {
-                      color: '#1faadb',
-                    },
-                    listView: {
-                      top: 100,
-                      zIndex: 10,
-                      position: 'absolute',
-                      color: 'black',
-                      width: '100%',
-                    },
-                    separator: {
-                      flex: 1,
-                      height: 1.5,
-                      backgroundColor: '#F76A03',
-                    },
-                    description: {
-                      flexDirection: "row",
-                      paddingVertical: 5,
-                      flexWrap: "wrap",
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 18,
-                      maxWidth: '100%',
-                      fontFamily: 'Manrope_500Medium'
-                    },
-                  }}
+                  styles={pICKStyler }
                 />
               </View>
 
-              <View style={styles.searchButton1}>
+              <View >
                 {/* <MaterialCommunityIcons name="map-marker" size={22} color="#737373" /> */}
                 <GooglePlacesAutocomplete
                   placeholder='Drop Off'
-                  onPress={(data, details = null) => {                    
-                    console.log( data.structured_formatting.main_text, "0000000000000000");
-                    console.log(pickupSet, "PickUp has a value o");
-                    if (pickupSet  === true) {
+                  fetchDetails={true}
+                  onPress={(data, details = null) => {
+                    console.log(details.formatted_address)
+                    dispatch(
+                      setDestination({
+                      location: details.geometry.location,
+                      description: data.description,
+                    })
+                    );
+
+                    if (pickupSet === true) {
                       setTimeout(() => {
                         navigation.navigate('TruckSelection')
                       }, 2000)
@@ -267,6 +266,9 @@ export default function Home(params) {
                   minLength={2}
                   keyboardAppearance="light"
                   listViewDisplayed={true}
+                  nearbyPlacesAPI='GooglePlacesSearch'
+                  debounce={400}
+                  enablePoweredByContainer={false}
                   query={{
                     key: 'AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4',
                     language: 'en',
@@ -275,45 +277,7 @@ export default function Home(params) {
                     placeholderTextColor: "#737373",
                     returnKeyType: "search"
                   }}
-                  styles={{
-
-                    textInputContainer: {
-                      padding: 0
-                    },
-
-                    textInput: {
-                      height: '100%',
-                      color: '#000',
-                      fontSize: 16,
-                      fontFamily: "Manrope_500Medium",
-                    },
-
-                    predefinedPlacesDescription: {
-                      color: '#1faadb',
-                    },
-                    listView: {
-                      top: 45.5,
-                      zIndex: 10,
-                      position: 'absolute',
-                      color: 'black',
-                      width: '100%',
-                    },
-                    separator: {
-                      flex: 1,
-                      height: 1.5,
-                      backgroundColor: '#F76A03',
-                    },
-                    description: {
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      paddingVertical: 5,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 17,
-                      maxWidth: '100%',
-                      fontFamily: 'Manrope_500Medium'
-                    },
-                  }}
+                  styles={placesStyler}
                 />
               </View>
 
@@ -355,8 +319,8 @@ const styles = StyleSheet.create({
     height: 42,
     backgroundColor: 'white',
     position: 'absolute',
-    top: Constants.statusBarHeight,
-    left: 25,
+    top: 60,
+    left: 30,
     borderRadius: 50 / 2,
     alignItems: "center",
     justifyContent: "center",
@@ -409,14 +373,10 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   searchButton1: {
-    height: 50,
+    height: 60,
     width: "100%",
     flexDirection: "row",
     marginVertical: 5,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    borderColor: '#737373',
-    backgroundColor: "#FAFAFA",
     alignItems: "center"
   },
   searchContainer: {
@@ -436,6 +396,99 @@ const styles = StyleSheet.create({
 
 });
 
+
+const placesStyler = StyleSheet.create({
+  textInputContainer: {
+    height: 50,
+    borderWidth: 2,
+    marginHorizontal: 15,
+    borderRadius: 10,
+    borderColor: '#737373',
+    backgroundColor: "#FAFAFA",
+  },
+  textInput: {
+    height: '100%',
+    color: '#000',
+    fontSize: 17,
+    fontFamily: "Manrope_500Medium",
+  },
+
+  // STYLE FOR PREDEFINED PLACES
+
+  // predefinedPlacesDescription: {
+  //   color: '#1faadb',
+  // },
+  listView: {
+    top: 55,
+    zIndex: 10,
+    position: 'absolute',
+    color: 'black',
+    width: '100%',
+  },
+  separator: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#F76A03',
+  },
+  description: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingVertical: 2,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 18,
+    maxWidth: '100%',
+    fontFamily: 'Manrope_500Medium'
+  },
+})
+
+const pICKStyler = StyleSheet.create({
+  textInputContainer: {
+    height: 50,
+    borderWidth: 2,
+    borderRadius: 10,
+    marginHorizontal: 15,
+    borderColor: '#737373',
+    backgroundColor: "#FAFAFA",
+  },
+
+  textInput: {
+    height: '100%',
+    color: '#000',
+    fontSize: 17,
+    fontFamily: "Manrope_500Medium",
+  },
+
+  // STYLE FOR PREDEFINED PLACES
+
+  // predefinedPlacesDescription: {
+  //   color: '#1faadb',
+  // },
+  listView: {
+    top: 110,
+    zIndex: 10,
+    position: 'absolute',
+    color: 'black',
+    width: '100%',
+  },
+  separator: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#F76A03',
+  },
+  description: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingVertical: 2,
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    justifyContent: 'center',
+    fontSize: 18,
+    maxWidth: '100%',
+    fontFamily: 'Manrope_500Medium'
+  },
+})
 
 
 
