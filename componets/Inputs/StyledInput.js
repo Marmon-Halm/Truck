@@ -14,10 +14,6 @@ import * as SplashScreen from 'expo-splash-screen';
 
 
 const { primary, sea, white, little, killed, grey } = color;
-
-
-
-
 const InputField = styled.TextInput`
 font-size: 16px;
 color: ${killed};
@@ -64,17 +60,6 @@ const RightIcon = styled.TouchableOpacity`
 
 const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, isMat, isMomo, isVoda, valid, ...props }) => {
 
-    const [fontsLoaded] = useFonts({
-        'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
-        'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
-        'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
-    })
-
-    if (!fontsLoaded) {
-        return undefined;
-    } else {
-        SplashScreen.hideAsync();
-    }
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);
@@ -89,8 +74,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
         props?.onFocus;
         setInputBackgroundColor(killed);
     };
-
-    
 
     return (
         <InputContainer style={{ borderWidth: 1.5, borderColor: '#DCDCDC', backgroundColor: "#FAFAFA" }}>
@@ -123,7 +106,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
                 </RightIcon>
 
             </RightIconContainer>
-
             }
 
             {isCard && <RightIconContainer >
@@ -133,7 +115,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
                 </RightIcon>
 
             </RightIconContainer>
-
             }
 
             {isMomo && <RightIconContainer >
@@ -143,7 +124,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
                 </RightIcon>
 
             </RightIconContainer>
-
             }
 
             {isVoda && <RightIconContainer >
@@ -155,8 +135,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
             </RightIconContainer>
 
             }
-
-
 
             {isPhone && <RightIcon>
                 <Feather name={'chevron-down'} size={18} color="#7A7A7A" />

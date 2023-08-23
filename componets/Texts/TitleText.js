@@ -20,13 +20,13 @@ const TitleText = (props) => {
     'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
     'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
     'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
-  })
+  });
 
   if (!fontsLoaded) {
     return undefined;
   } else {
     SplashScreen.hideAsync();
-  }
+  };
 
   return <StyledText {...props}>{props.children}</StyledText>
 

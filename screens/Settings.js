@@ -288,7 +288,7 @@ export default function Settings(params) {
                             </View>
                         </TouchableOpacity> */}
 
-                        <TouchableOpacity style={styles.option} onPress={cardActive}>
+                        {/* <TouchableOpacity style={styles.option} onPress={cardActive}>
                             <View style={styles.iconView}>
                                 <MaterialCommunityIcons name="credit-card" size={22} color="black" />
                             </View>
@@ -302,11 +302,11 @@ export default function Settings(params) {
                             <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
                                 <MaterialCommunityIcons name={!active3 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
                             </View>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
 
                     </View>
-                    <BottomButton style={{ right: 20, width: '90%' }} onPress={() => { navigation.navigate('Payment') }}>Add New Payment</BottomButton>
+                    <BottomButton style={{ right: 20, width: '90%' }} onPress={() => { navigation.navigate('CreditCard') }}>Add Credit / Debit Card</BottomButton>
                 </BottomSheetModal>
             </BottomSheetModalProvider>
         </GestureHandlerRootView>

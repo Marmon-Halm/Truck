@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from "react";
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,20 +10,13 @@ import RegularTexts from '../componets/Texts/RegularTexts';
 import MsgText from '../componets/Texts/MsgText';
 import RegularButton from '../componets/Buttons/RegularButton';
 import { Formik } from 'formik';
-import { color } from '../screens/color';
 import TitleText from '../componets/Texts/TitleText';
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { StatusBarHeight } from '../componets/shared';
 import StyledInput from '../componets/Inputs/StyledInput';
-import MessageModal from '../componets/Modals/MessageModal';
-const { primary, sea, white, little, killed, backgrey } = color;
 import { MaterialIndicator } from 'react-native-indicators';
 import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
 import ToastrForSignUp from '../componets/Toastr Notification/ToastForSignUp';
-
-
-
-
 
 export default function ResetP(params) {
 
@@ -87,13 +79,6 @@ export default function ResetP(params) {
         return showToastr('Password-Reset Link Sent!');
     };
 
-    const showModal = (type, headerText, message, buttonText) => {
-        setModalMessageType(type);
-        setHeaderText(headerText);
-        setModalMessage(message);
-        setButtonText(buttonText);
-        setModalVisible(true);
-    };
 
 
     const handleOnSubmit = async () => {
@@ -191,15 +176,6 @@ export default function ResetP(params) {
                     </>
                 )}
             </Formik>
-
-            <MessageModal
-                modalVisible={modalVisible}
-                buttonHandler={buttonHandler}
-                type={modalMessageType}
-                headerText={headerText}
-                message={modalMessage}
-                buttonText={buttonText}
-            />
 
             <StatusBar style="dark" />
         </KeyboardAvoiding>

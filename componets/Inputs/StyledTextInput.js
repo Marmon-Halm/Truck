@@ -13,10 +13,6 @@ import * as SplashScreen from 'expo-splash-screen';
 
 
 const { primary, sea, white, little, killed, grey } = color;
-
-
-
-
 const InputField = styled.TextInput`
     font-size: 16px;
     color: ${killed};
@@ -58,22 +54,24 @@ const RightIcon = styled.TouchableOpacity`
     z-index: 1;
 `;
 
+// const [fontsLoaded] = useFonts({
+//     'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
+//     'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
+//     'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
+// })
+
+// if (!fontsLoaded) {
+//     return undefined;
+// } else {
+//     SplashScreen.hideAsync();
+// }
+
 
 
 
 const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, plain, ...props }) => {
 
-    const [fontsLoaded] = useFonts({
-        'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
-        'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
-        'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
-    })
-
-    if (!fontsLoaded) {
-        return undefined;
-    } else {
-        SplashScreen.hideAsync();
-    }
+    
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);

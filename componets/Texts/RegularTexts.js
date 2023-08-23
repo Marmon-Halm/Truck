@@ -14,6 +14,7 @@ const StyledText = styled.Text`
 
 
 const RegularTexts = (props) => {
+  
   const [fontsLoaded] = useFonts({
     'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
     'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
@@ -24,7 +25,10 @@ const RegularTexts = (props) => {
     return undefined;
   } else {
     SplashScreen.hideAsync();
-  }
+  };
+
+
+
   return <StyledText {...props}>{props.children}</StyledText>
 };
 

@@ -80,6 +80,7 @@ export default function Home(params) {
 
   const bottomSheetModalRef = useRef(null);
   const snapPoints = useMemo(() => ['95%', '95%'], []);
+  const bottomSheetRef = useRef(null);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
     setModalOpen(true);
@@ -133,6 +134,8 @@ export default function Home(params) {
 
 
           <BottomSheet
+            ref={bottomSheetRef}
+            index={0}
             snapPoints={[350, 500]}
             overDragResistanceFactor={0}
             backgroundStyle={{
@@ -181,6 +184,7 @@ export default function Home(params) {
           index={1}
           snapPoints={snapPoints}
           backgroundStyle={{ borderRadius: 20, }}
+          onChange={handleSheetChanges}
           onDismiss={() => setModalOpen(false)}
         >
           <Animated.View
@@ -201,11 +205,12 @@ export default function Home(params) {
                   placeholder='Pick Up Location'
                   fetchDetails={true}
                   onPress={(data, details = null) => {
-                    console.log(details.formatted_address)
+                    console.log(details.address_components[1].short_name)
                     dispatch(
                       setOrigin({
                         location: details.geometry.location,
                         description: data.description,
+                        title: details.address_components[1].short_name,
                       })
                     );
 
@@ -238,7 +243,7 @@ export default function Home(params) {
                   textInputProps={{
                     placeholderTextColor: "#737373",
                   }}
-                  styles={pICKStyler }
+                  styles={pICKStyler}
                 />
               </View>
 
@@ -248,12 +253,13 @@ export default function Home(params) {
                   placeholder='Drop Off'
                   fetchDetails={true}
                   onPress={(data, details = null) => {
-                    console.log(details.formatted_address)
+                    console.log(details.address_components[1].short_name)
                     dispatch(
                       setDestination({
-                      location: details.geometry.location,
-                      description: data.description,
-                    })
+                        location: details.geometry.location,
+                        description: data.description,
+                        title: details.address_components[1].short_name,
+                      })
                     );
 
                     if (pickupSet === true) {

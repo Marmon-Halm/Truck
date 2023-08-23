@@ -2,26 +2,21 @@ import React, { useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { View, Image, StyleSheet, Alert } from 'react-native';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
 import MainContainer from '../componets/Containers/MainContainer';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import MsgText from '../componets/Texts/MsgText';
 import RegularButton from '../componets/Buttons/RegularButton';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config';
 import { Formik } from 'formik';
 import { color } from '../screens/color';
 import ghana from '../assets/ghana.png';
-import app from '../config';
 import { UserContext } from '../contexts/UserContext';
 import { StatusBarHeight } from '../componets/shared';
 import StyledInput from '../componets/Inputs/StyledInput';
-const { primary, sea, white, little, killed, grey } = color;
+const { primary } = color;
 import { MaterialIndicator } from 'react-native-indicators';
-import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
 import ToastrError from '../componets/Toastr Notification/ToastrError';
 
 
@@ -31,15 +26,12 @@ const PWD_REGEX =
 
 export default function Login(params) {
   const navigation = params.navigation;
-
   const { setUserLoggedIn } = useContext(UserContext)
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailValid, setEmailValid] = useState(false)
   const [pwdValid, setPwdValid] = useState(false)
   const [loading, setLoading] = useState('');
-  const [enableContinueBtn, setEnableContinueBtn] = useState(false);
   const [message, setMessage] = useState('');
   const [message1, setMessage1] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -47,25 +39,13 @@ export default function Login(params) {
   const [submitting, setSubmitting] = useState(false);
 
   //TOASTR
-  const [toastrVisible, setToastrVisible] = useState(false);
   const [toastrVisible1, setToastrVisible1] = useState(false);
-  const [bodyText, setBodyText] = useState('');
   const [bodyText1, setBodyText1] = useState('');
 
-  const showToastr = (bodyText) => {
-    setBodyText(bodyText);
-  }
   const showToastr2 = (bodyText1) => {
     setBodyText1(bodyText1);
   }
 
-  const successToastr = () => {
-    setTimeout(() => {
-      setToastrVisible(false);
-    }, 4000)
-    setToastrVisible(true);
-    return showToastr('Email Verification Link Sent!');
-  };
 
   const errorToastr = () => {
     setTimeout(() => {
@@ -75,7 +55,6 @@ export default function Login(params) {
     setToastrVisible1(true);
     return showToastr2('Check your email to verify your account before proceeding.')
   }
-
 
   const handleLogin = () => {
     setSubmitting(true);
@@ -87,16 +66,13 @@ export default function Login(params) {
           setUserLoggedIn(true);
           console.log('Signed In')
           console.log(user)
-
         } else {
           errorToastr();
           setLoading(false);
           setSubmitting(false);
         }
-
       })
       .catch((error) => {
-        // setMessage('Login failed: ' + error.message);
         console.log(error.message)
         if (error.message === "Firebase: Error (auth/invalid-email)." || error.message === "Firebase: Error (auth/user-not-found)." || error.message === "Firebase: Error (auth/wrong-password).") {
           setErrorMessage('Incorrect Email Address or Password')
@@ -108,25 +84,12 @@ export default function Login(params) {
 
 
 
-  // FONTS
-  const [fontsLoaded] = useFonts({
-    'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
-    'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
-    'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
-  })
-
-  if (!fontsLoaded) {
-    return undefined;
-  } else {
-    SplashScreen.hideAsync();
-  }
   return <MainContainer style={{ paddingTop: StatusBarHeight }}>
     <KeyboardAvoiding>
 
       <View style={{ width: 100, height: 100, alignSelf: 'center', marginVertical: 30 }}>
         <Image source={ghana} style={{ width: '100%', height: '100%' }} />
       </View>
-
 
       <Formik
         initialValues={{ email: '', password: '' }}
@@ -157,7 +120,7 @@ export default function Login(params) {
               {errorMessage || ""}
             </MsgText>
 
-            <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Email Address</RegularTexts>
+            <RegularTexts style={{ marginBottom: 8, fontSize: 15 }}>Email Address</RegularTexts>
             <StyledInput
               icon="email-outline"
               keyboardType="email-address"
@@ -177,7 +140,7 @@ export default function Login(params) {
             </MsgText>
 
 
-            <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Password</RegularTexts>
+            <RegularTexts style={{ marginBottom: 8, fontSize: 15 }}>Password</RegularTexts>
             <StyledInput
               icon="lock-outline"
               keyboardAppearance="light"
@@ -224,14 +187,6 @@ export default function Login(params) {
       </Formik>
 
       {
-        toastrVisible ? (<ToastrSuccess
-          bodyText={bodyText}
-        />
-        ) : null
-
-      }
-
-      {
         toastrVisible1 ? (<ToastrError
           bodyText={bodyText1}
         />
@@ -239,21 +194,9 @@ export default function Login(params) {
 
       }
 
-
-
-
-
       <StatusBar style="dark" />
 
     </KeyboardAvoiding>
   </MainContainer>
 }
 
-const styles = StyleSheet.create({
-
-  ImgContainer: {
-    flex: 1,
-    backgroundColor: "#F8F8F8",
-    padding: 30,
-  },
-});

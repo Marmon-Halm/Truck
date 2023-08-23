@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIndicator } from 'react-native-indicators';
 import * as Location from 'expo-location';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
+import { useDispatch, useSelector } from 'react-redux';
+import { selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
+import MapViewDirections from 'react-native-maps-directions';
+import { GOOGLE_MAPS_APIKEY } from "@env";
+import marker from '../assets/marker.png';
+import flag from '../assets/flag.png';
 
 
 const LocationsPage = (params) => {
@@ -19,38 +25,14 @@ const LocationsPage = (params) => {
     });
 
 
-    useEffect(() => {
-        (async () => {
-
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                setErrorMsg('Permission to access location was denied');
-                return;
-            }
-
-            let location = await Location.getCurrentPositionAsync({
-            });
-            setLocation(location);
-            let address = await Location.reverseGeocodeAsync(location.coords)
-            SetDisplayAddress(address[0].name)
-            SetDisplayCurrentAddress(address[0].street)
-
-            setPosition({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.004,
-                longitudeDelta: 0.005,
-            });
-
-
-
-        })();
-    }, []);
-
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const [phoneNumber, setPhoneNumber] = useState("");
     const [value, setValue] = useState("");
+    const origin = useSelector(selectOrigin);
+    const destination = useSelector(selectDestination);
+    const mapRef = useRef(null);
+    const { width, height } = Dimensions.get("window");
 
     // FONTS
     const [fontsLoaded] = useFonts({
@@ -70,12 +52,64 @@ const LocationsPage = (params) => {
         <View style={{ height: '100%', width: windowWidth }}>
 
             <MapView
-                style={{ width: '100%', height: '100%' }}
+                ref={mapRef}
+                style={{ width: width, height: height }}
                 provider={PROVIDER_GOOGLE}
-                initialRegion={position}
-                region={position}
-                showsUserLocation={true}
-            />
+                initialRegion={{
+                    latitude: origin.location.lat,
+                    longitude: origin.location.lng,
+                    latitudeDelta: 0.045,
+                    longitudeDelta: 0.045,
+                }}
+            >
+
+                {
+                    origin && destination && (
+                        <MapViewDirections
+                            origin={origin.description}
+                            destination={destination.description}
+                            apikey={GOOGLE_MAPS_APIKEY}
+                            strokeWidth={3}
+                            strokeColor='black'
+                        />
+                    )
+                }
+
+                {
+                    origin?.location && (
+                        <Marker
+                            coordinate={{
+                                latitude: origin.location.lat,
+                                longitude: origin.location.lng,
+                            }}
+                            identifier='origin'
+                        >
+                            <Image source={marker} />
+                            <Callout style={{ width: 85 }}>
+                                <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
+                            </Callout>
+                        </Marker>
+                    )
+                }
+
+                {
+                    destination?.location && (
+                        <Marker
+                            coordinate={{
+                                latitude: destination.location.lat,
+                                longitude: destination.location.lng,
+                            }}
+                            identifier='destination'
+                        >
+                            <Image source={flag} />
+                            <Callout style={{ width: 85 }}>
+                                <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
+                            </Callout>
+                        </Marker>
+                    )
+                }
+
+            </MapView>
 
             <View style={styles.topNav}>
                 <Text style={{ fontSize: 22, fontFamily: 'Manrope_600SemiBold', }}>Looking for a vehicle</Text>

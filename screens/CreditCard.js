@@ -108,7 +108,11 @@ const CreditCard = (params) => {
                                 keyboardAppearance="light"
                                 inputMode='numeric'
                                 returnKeyType='done'
-                                onChangeText={(text) => setCardCVC(text)}
+                                onChangeText={(text) => {
+                                    setCardCVC(text);
+                                    setEnableBtn(true);
+                                }
+                                }
                                 value={cardCVC}
                                 minLength={1}
                                 maxLength={3}
@@ -118,7 +122,7 @@ const CreditCard = (params) => {
                 </View>
             </KeyboardAvoiding>
 
-            <BottomButton>Add New Card</BottomButton>
+            <BottomButton>Save New Card</BottomButton>
 
 
 

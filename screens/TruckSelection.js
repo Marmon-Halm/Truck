@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Platform, Dimensions, Image, FlatList } from 'react-native';
 import { useFonts, Manrope_400Regular, Manrope_500Medium, Manrope_700Bold, Manrope_600SemiBold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
-import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons, Foundation } from '@expo/vector-icons';
+import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 import { color } from './color';
@@ -12,12 +12,14 @@ import small from '../assets/small.png';
 import medium from '../assets/medium.png';
 import cash from '../assets/cash.png';
 import large from '../assets/large.png';
+import marker from '../assets/marker.png';
+import flag from '../assets/flag.png';
 import huge from '../assets/huge.png';
 import RegularButton from '../componets/Buttons/RegularButton';
 import useUser from '../hook/useUser';
 import * as SplashScreen from 'expo-splash-screen';
-import { useSelector } from 'react-redux';
-import { selectDestination, selectOrigin, } from '../slices/navSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
 import MapViewDirections from 'react-native-maps-directions';
 import { GOOGLE_MAPS_APIKEY } from "@env";
 
@@ -29,7 +31,10 @@ export default function TruckSelection(params) {
   const navigation = params.navigation;
   const origin = useSelector(selectOrigin);
   const destination = useSelector(selectDestination);
+  const dispatch = useDispatch();
+  const travelTimeInformation = useSelector(selectTravelTimeInformation);
   const mapRef = useRef(null);
+  const searchChargeRate = 1.5;
   const { userData, isLoading: isUserDataLoading } = useUser();
   const { width, height } = Dimensions.get("window");
   const [position, setPosition] = useState({
@@ -45,6 +50,7 @@ export default function TruckSelection(params) {
   //   })();
   // }, []);
 
+  const [truckPrice, setTruckPrice] = useState(1);
   const [selectTruck, setSelectTruck] = useState('');
   const [active, setActive] = useState(true);
   const [active1, setActive1] = useState(false);
@@ -57,17 +63,27 @@ export default function TruckSelection(params) {
   useEffect(() => {
     if (userData) {
       //  console.log('user data ', userData)
+    };
+
+    if (!origin || !destination) return;
+
+    const getTravelTime = async () => {
+      fetch(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
+      ).then((res) => res.json())
+        .then(data => {
+          dispatch(setTravelTimeInformation(data.rows[0].elements[0]))
+          console.log(data.rows[0].elements[0])
+        })
+
     }
-  }, [userData, isUserDataLoading])
 
-  useEffect(() => {
-    if (!origin || !destination) return 
+    getTravelTime();
+  }, [userData, isUserDataLoading, origin, destination, GOOGLE_MAPS_APIKEY])
 
-    mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
-      edgePadding: {top: 20, right: 20, bottom: 20, left: 20}
-    })
-  }, [origin, destination])
+  // useEffect(() => {
 
+  // }, [])
 
   const cashActive = () => {
 
@@ -91,6 +107,7 @@ export default function TruckSelection(params) {
       setActive3(false);
       setActive(true);
       setSelectTruck('Request Small Truck')
+      setTruckPrice(1)
     }
   }
   const mActive = () => {
@@ -100,7 +117,8 @@ export default function TruckSelection(params) {
       setActive2(false);
       setActive(false);
       setActive1(true);
-      setSelectTruck('Request Medium Truck')
+      setSelectTruck('Request Medium Truck');
+      setTruckPrice(1.3);
     };
   }
   const lActive = () => {
@@ -109,7 +127,8 @@ export default function TruckSelection(params) {
       setActive1(false);
       setActive2(true);
       setActive3(false);
-      setSelectTruck('Request Large Truck')
+      setSelectTruck('Request Large Truck');
+      setTruckPrice(2.6);
     }
   }
   const hActive = () => {
@@ -118,7 +137,8 @@ export default function TruckSelection(params) {
       setActive(false);
       setActive2(false);
       setActive3(true);
-      setSelectTruck('Request Huge Truck')
+      setSelectTruck('Request Huge Truck');
+      setTruckPrice(6);
     };
   }
 
@@ -157,7 +177,7 @@ export default function TruckSelection(params) {
         <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
             ref={mapRef}
-            style={{ width: width, height: '57.5%' }}
+            style={{ width: width, height: '40.5%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={{
               latitude: origin.location.lat,
@@ -188,9 +208,9 @@ export default function TruckSelection(params) {
                   }}
                   identifier='origin'
                 >
-                  <MaterialIcons name="location-pin" size={35} color="black" />
+                  <Image source={marker} />
                   <Callout style={{ width: 85 }}>
-                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{origin.description}</Text>
+                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
                   </Callout>
                 </Marker>
               )
@@ -200,14 +220,14 @@ export default function TruckSelection(params) {
               destination?.location && (
                 <Marker
                   coordinate={{
-                    latitude: origin.location.lat,
-                    longitude: origin.location.lng,
+                    latitude: destination.location.lat,
+                    longitude: destination.location.lng,
                   }}
                   identifier='destination'
                 >
-                  <MaterialIcons name="location-pin" size={35} color="black" />
+                  <Image source={flag} />
                   <Callout style={{ width: 85 }}>
-                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{origin.description}</Text>
+                    <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
                   </Callout>
                 </Marker>
               )
@@ -299,7 +319,7 @@ export default function TruckSelection(params) {
 
                   <View style={{ flexDirection: 'row' }}>
                     <MaterialCommunityIcons name="flag-variant" size={24} color="#F76A03" />
-                    <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>21 km</Text>
+                    <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>{travelTimeInformation?.distance.text} ({travelTimeInformation?.duration.text})</Text>
 
                   </View>
 
@@ -320,15 +340,24 @@ export default function TruckSelection(params) {
                       active1 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,5 t(tonnes)</Text>
                     }
                     {
-                      active2 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,7 t(tonnes)</Text>
+                      active2 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>2,5 t(tonnes)</Text>
                     }
                     {
                       active3 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>9 t (tonnes)</Text>
                     }
                   </View>
                   <View style={{ flexDirection: 'row' }}>
-                    <MaterialCommunityIcons name="currency-usd" size={24} color="#F76A03" />
-                    <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>60.00</Text>
+                    {/* <MaterialCommunityIcons name="currency-usd" size={24} color="#F76A03" /> */}
+                    <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>
+                      {
+                        new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'GHC'
+                        }).format(
+                          (travelTimeInformation?.duration.value * searchChargeRate * truckPrice) / 100
+                        )
+                      }
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -336,8 +365,8 @@ export default function TruckSelection(params) {
               <View style={styles.tripDesignInfo} >
                 <View style={styles.tripDesign}>
 
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C' }}>Pickup</Text>
+                  <View>
+                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C', textAlign: 'center' }}>Pickup</Text>
                   </View>
 
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -346,18 +375,18 @@ export default function TruckSelection(params) {
                     <View style={styles.rectangle}></View>
                   </View>
 
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C' }}>Drop-off</Text>
+                  <View>
+                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C', textAlign: 'center' }}>Drop-off</Text>
                   </View>
 
                 </View>
 
-                <View style={styles.tripText}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>Spintex Rd, 567a</Text>
+                <View style={styles.tripText1}>
+                  <View style={{ width: '50%' }}>
+                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5, textAlign: 'left' }}>{origin.title}</Text>
                   </View>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>Legon E Rd, Accra</Text>
+                  <View style={{ width: '50%' }}>
+                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
                   </View>
                 </View>
 
@@ -405,16 +434,32 @@ export default function TruckSelection(params) {
             </TouchableOpacity>
             <View style={{ width: '80%' }}>
               {
-                active && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>Request Small Truck</RegularButton>
+                active && <RegularButton onPress={() => {
+                  setTimeout(() => {
+                    navigation.navigate('LocationsPage')
+                  }, 1000)
+                }}>Request Small Truck</RegularButton>
               }
               {
-                active1 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
+                active1 && <RegularButton onPress={() => {
+                  setTimeout(() => {
+                    navigation.navigate('LocationsPage')
+                  }, 1000)
+                }}>{selectTruck}</RegularButton>
               }
               {
-                active2 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
+                active2 && <RegularButton onPress={() => {
+                  setTimeout(() => {
+                    navigation.navigate('LocationsPage')
+                  }, 1000)
+                }}>{selectTruck}</RegularButton>
               }
               {
-                active3 && <RegularButton onPress={() => { navigation.navigate('LocationsPage') }}>{selectTruck}</RegularButton>
+                active3 && <RegularButton onPress={() => {
+                  setTimeout(() => {
+                    navigation.navigate('LocationsPage')
+                  }, 1000)
+                }}>{selectTruck}</RegularButton>
               }
 
             </View>
@@ -432,6 +477,7 @@ export default function TruckSelection(params) {
           ref={bottomSheetModalRef}
           index={1}
           snapPoints={snapPoints}
+          onChange={handleSheetChanges}
           backgroundStyle={{ borderRadius: 20, backgroundColor: '#E8E9EB' }}
           onDismiss={() => setModalOpen(false)}
         >
@@ -587,6 +633,10 @@ const styles = StyleSheet.create({
   tripText: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  tripText1: {
+    flexDirection: 'row',
     width: '100%',
   },
   tripDesign: {

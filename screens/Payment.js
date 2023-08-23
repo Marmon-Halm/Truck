@@ -78,7 +78,7 @@ const Payment = (params) => {
 
             <View style={styles.paymentOptions}>
 
-                <TouchableOpacity style={styles.option} onPress={() => { navigation.navigate("Momo") }}>
+                {/* <TouchableOpacity style={styles.option} onPress={() => { navigation.navigate("Momo") }}>
                     <View style={styles.iconView}>
                         <Image source={mtn} style={{ width: 24, height: 22, borderRadius: 5 }} />
                     </View>
@@ -108,7 +108,7 @@ const Payment = (params) => {
                     <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
                         <Feather name="chevron-right" size={24} color="black" />
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TouchableOpacity style={styles.option} onPress={() => { navigation.navigate("CreditCard") }}>
                     <View style={styles.iconView}>

@@ -2,12 +2,10 @@ import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { StatusBarHeight } from '../componets/shared';
-import { useFonts, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
-import AppLoading from 'expo-app-loading';
 import { StatusBar } from 'expo-status-bar';
 import TitleText from '../componets/Texts/TitleText';
 import RegularTexts from '../componets/Texts/RegularTexts';
-import StyledInput from '../componets/Inputs/StyledInput';
+import StyledTextInput from '../componets/Inputs/StyledTextInput';
 import BottomButton from '../componets/Buttons/BottomButton';
 
 
@@ -17,18 +15,6 @@ const Momo = (params) => {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const [phoneNumber, setPhoneNumber] = useState("");
-
-
-    let [fontsLoaded] = useFonts({
-        Manrope_600SemiBold,
-        Manrope_700Bold,
-        Manrope_800ExtraBold
-    });
-
-    if (!fontsLoaded) {
-        return <AppLoading />;
-    }
-
 
     return (
         <View>
@@ -48,7 +34,7 @@ const Momo = (params) => {
 
 
                     <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>MTN Momo Number</RegularTexts>
-                    <StyledInput
+                    <StyledTextInput
                         icon="phone-outline"
                         keyboardType="numeric"
                         keyboardAppearance="light"
@@ -62,11 +48,7 @@ const Momo = (params) => {
                     />
 
                 </View>
-
-
                 <StatusBar style="dark" />
-
-
             </View>
 
             <BottomButton style={{ right: 20, width: '90%' }}>Save This Payment</BottomButton>
