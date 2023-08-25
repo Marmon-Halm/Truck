@@ -16,5 +16,6 @@ export default function Navigation() {
 }
 
 // {userLoggedIn? <UserNavigator /> : <RootNavigator />}
-
+// <UserNavigator />
+// <RootNavigator />
 

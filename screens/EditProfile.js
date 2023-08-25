@@ -14,6 +14,8 @@ import StyledInput from '../componets/Inputs/StyledInput';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import useUser from '../hook/useUser';
+import { setDoc, doc, uid } from '@firebase/firestore';
+import { db } from '../config';
 
 
 
@@ -24,7 +26,7 @@ export default function EditProfile(params) {
     const [message, setMessage] = useState('');
     const [isSuccessMessage, setIsSuccessMessage] = useState(false);
     const [upload, setUpload] = useState(false);
-    const [photoUri, setPhotoUri] = useState('');
+    const [photoUri, setPhotoUri] = useState(null);
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -34,6 +36,9 @@ export default function EditProfile(params) {
     useEffect(()=> {
         if(userData){
             // console.log('user data ', userData)
+            setFirstName(userData.firstName);
+            setPhoneNumber(userData.phoneNumber);
+            setEmail(userData.email);
         }
     }, [userData, isUserDataLoading])
 
@@ -55,12 +60,21 @@ export default function EditProfile(params) {
         }
     };
 
+    const updateUserInfo = async () => {
+       try {
+        const userRef = doc(db, 'users', uid)
+        setDoc(userRef, { photoUri: photoUri}, { merge: true});
+        console.log("!UPDATING")
+       } catch (error) {
+        console.log("error resolving promise ", error);
+      }
+    };
+
 
     return (
         <View style={{ height: windowHeight, width: windowWidth, paddingTop: StatusBarHeight, backgroundColor: "#fff", paddingHorizontal: 20 }}>
 
             <View style={styles.view3}>
-
                 <View style={{ width: "10%" }}>
                     <AntDesign name="arrowleft" size={26} style={{ textAlign: "left" }} color="black" onPress={() => {
                         navigation.goBack()
@@ -89,9 +103,6 @@ export default function EditProfile(params) {
                             {image && <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 100 / 2, }} />}
                         </TouchableOpacity>
 
-                        <RegularTexts style={{ textAlign: 'center' }}>{userData.firstName}</RegularTexts>
-                        <SmallTexts>{userData.phoneNumber}</SmallTexts>
-
                     </View>
 
 
@@ -108,14 +119,34 @@ export default function EditProfile(params) {
                     >
                         {({ handleChange, handleBlur, handleSubmit, values, isSubmitting }) => (
                             <>
-                                <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>First Name</RegularTexts>
+                                <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Username</RegularTexts>
                                 <StyledInput
                                     icon="account-outline"
                                     onChangeText={(text) => setFirstName(text)}
                                     onBlur={handleBlur('firstName')}
                                     enablesReturnKeyAutomatically={true}
                                     keyboardAppearance="light"
-                                    value={userData.firstName}
+                                    value={firstName}
+                                />
+                                <MsgText
+                                    style={{ marginBottom: message ? 12 : 5, marginLeft: 3, textAlign: 'left', }}
+                                    success={isSuccessMessage}>
+                                    {message || ""}
+                                </MsgText>
+
+                                <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Email Address</RegularTexts>
+                                <StyledInput
+                                    placeholder={userData.email}
+                                    icon="email-outline"
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    onChangeText={(text) => {
+                                        setEmail(text)
+                                    }}
+                                    value={email}
+                                    onBlur={handleBlur('email')}
+                                    enablesReturnKeyAutomatically={true}
+                                    keyboardAppearance="light"
                                 />
                                 <MsgText
                                     style={{ marginBottom: message ? 12 : 5, marginLeft: 3, textAlign: 'left', }}
@@ -131,7 +162,7 @@ export default function EditProfile(params) {
                                     inputMode='numeric'
                                     returnKeyType='done'
                                     onChangeText={(text) => setPhoneNumber(text)}
-                                    value={userData.phoneNumber}
+                                    value={phoneNumber}
                                     minLength={1}
                                     maxLength={10}
                                 />
@@ -140,42 +171,14 @@ export default function EditProfile(params) {
                                     success={isSubmitting}>
                                     {message || ""}
                                 </MsgText>
-
-                                <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Email Address</RegularTexts>
-                                <StyledInput
-                                    icon="email-outline"
-                                    keyboardType="email-address"
-                                    autoCapitalize="none"
-                                    onChangeText={(text) => {
-                                        setEmail(text)
-                                    }}
-                                    value={userData.email}
-                                    onBlur={handleBlur('email')}
-                                    enablesReturnKeyAutomatically={true}
-                                    keyboardAppearance="light"
-                                />
-                                <MsgText
-                                    style={{ marginBottom: message ? 12 : 5, marginLeft: 3, textAlign: 'left', }}
-                                    success={isSuccessMessage}>
-                                    {message || ""}
-                                </MsgText>
-
                             </>
                         )}
                     </Formik>
-
-
-
-
                 </View>
 
-
                 <StatusBar style="dark" />
-
             </KeyboardAvoiding>
-            <BottomButton>Save Changes</BottomButton>
-
-
+            <BottomButton onPress={updateUserInfo}>Save Changes</BottomButton>
         </View>
     )
 }

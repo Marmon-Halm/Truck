@@ -7,7 +7,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location';
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import Constants from 'expo-constants';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import Animated, { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp } from "react-native-reanimated";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -16,70 +16,119 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
+import axios from 'axios';
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
+
+const data = [
+  {
+    id: 1,
+    icon: "home",
+    title: "Home",
+  },
+  {
+    id: 2,
+    icon: "ios-briefcase",
+    title: "Work",
+  },
+  {
+    id: 3,
+    icon: "star-sharp",
+    title: "Favorite",
+  }
+]
 
 export default function Home(params) {
   const navigation = params.navigation;
   const dispatch = useDispatch();
   const [value, setValue] = useState("");
   const origin = useSelector(selectOrigin);
-  const [location, setLocation] = useState(null);
+  const textInputRef = useRef(null);
+  const [currentLocation, setCurrentLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [valid, setValid] = useState(false);
   const { width, height } = Dimensions.get("window");
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
-  const [pickupSet, setPickupSet] = useState(false);
+  const [pickupSet, setPickupSet] = useState(true);
   const [displayCurrentAddress, SetDisplayCurrentAddress] = useState('Fetching your location')
   const [displayAddress, SetDisplayAddress] = useState('Fetching your location')
   const [position, setPosition] = useState({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: origin.location.lat,
+    longitude: origin.location.lng,
+    latitudeDelta: 0.005,
+    longitudeDelta: 0.005,
   });
 
-
   useEffect(() => {
-    (async () => {
-
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({
-      });
-      setLocation(location);
-      let address = await Location.reverseGeocodeAsync(location.coords)
-      SetDisplayAddress(address[0].name)
-      SetDisplayCurrentAddress(address[0].street)
-
-      setPosition({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      });
-
-
-
-    })();
-  }, []);
-
-
-  let text = 'Waiting..';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
+    SetDisplayAddress(origin.title);
+    if (textInputRef.current) {
+      textInputRef.current.setAddressText(displayAddress);
   }
+  }, [])
+
+
+  // useEffect(() => {
+  //   (async () => {
+
+  //     let { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       setErrorMsg('Permission to access location was denied');
+  //       return;
+  //     }
+
+  //     let location = await Location.getCurrentPositionAsync({
+  //     });
+  //     setCurrentLocation(location.coords);
+  //     setPosition({
+  //       latitude: location.coords.latitude,
+  //       longitude: location.coords.longitude,
+  //       latitudeDelta: 0.005,
+  //       longitudeDelta: 0.005,
+  //     });
+
+
+  //   })();
+
+  //   if (currentLocation) {
+  //     const { latitude, longitude } = currentLocation;
+  //     axios
+  //       .get(
+  //         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_APIKEY}`
+  //       )
+  //       .then((response) => {
+  //         const { results } = response.data;
+  //         SetDisplayAddress(results[1].address_components[1].long_name)
+  //         if (results.length > 0) {
+  //           const formattedAddress = results[1].address_components[1].long_name;
+  //           if (textInputRef.current) {
+  //             textInputRef.current.setAddressText(formattedAddress);
+  //           }
+  //         };
+
+  //         dispatch(
+  //           setOrigin({
+  //             location: results[1].geometry.location,
+  //             description: results[0].formatted_address,
+  //             title: results[1].address_components[1].long_name,
+  //           })
+  //         );
+
+  //         dispatch(setDestination(null));
+  //         setPickupSet(true);
+  //       })
+  //       .catch((error) => {
+  //         console.error('Error fetching address:', error);
+  //       });
+  //   }
+  // }, [currentLocation]);
+
+
 
   const bottomSheetModalRef = useRef(null);
   const snapPoints = useMemo(() => ['95%', '95%'], []);
+  const snapPoints1 = useMemo(() => ['40%', '65%'], []);
   const bottomSheetRef = useRef(null);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
@@ -103,12 +152,6 @@ export default function Home(params) {
     SplashScreen.hideAsync();
   }
 
-  const setIndexToOne = () => {
-    setValid(false);
-    console.log("ONE")
-  };
-
-
 
 
   // <View style={{height: '100%', position: 'relative'}}>
@@ -119,7 +162,7 @@ export default function Home(params) {
 
         <View style={{ paddingHorizontal: 0, height: '100%' }}>
           <MapView
-            style={{ width: width, height: '65%' }}
+            style={{ width: width, height: '70%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={position}
             region={position}
@@ -129,14 +172,13 @@ export default function Home(params) {
           />
 
           <TouchableOpacity style={styles.menuContainer} onPress={() => { navigation.navigate("Settings") }}>
-            <Feather name="menu" size={22} color="#000" />
+            <Feather name="menu" size={20} color="#000" />
           </TouchableOpacity>
-
 
           <BottomSheet
             ref={bottomSheetRef}
             index={0}
-            snapPoints={[350, 500]}
+            snapPoints={snapPoints1}
             overDragResistanceFactor={0}
             backgroundStyle={{
               borderRadius: 20, shadowOffset: { width: 0, height: 0 },
@@ -146,20 +188,32 @@ export default function Home(params) {
           >
             <View style={styles.searchContainer}>
               <View style={{ alignItems: "center", marginBottom: 15 }}>
-                <Text style={{ color: "#737373", fontFamily: "Manrope_500Medium", fontSize: 12 }}>{displayAddress}</Text>
-                <RegularTexts style={{ textAlign: "center" }}>{displayCurrentAddress}</RegularTexts>
+                <Text style={{ color: "#737373", fontFamily: "Manrope_500Medium", fontSize: 13 }}>Your Location</Text>
+                <RegularTexts style={{ textAlign: "center", fontSize: 16 }}>{displayAddress}</RegularTexts>
               </View>
               <View >
                 <TouchableOpacity onPress={handlePresentModalPress} style={styles.searchButton}>
-                  <Feather name="search" style={{ marginRight: 8 }} size={18} color="#737373" />
-                  <RegularTexts style={{ color: "#737373" }}>Where to ?</RegularTexts>
+                  <Feather name="search" style={{ marginRight: 8 }} size={20} color="#555555" />
+                  <RegularTexts style={{ color: "#555555", fontSize: 18 }}>Where to ?</RegularTexts>
                 </TouchableOpacity>
               </View>
 
-              <View style={{ marginVertical: 25, flex: 1, flexDirection: 'row', justifyContent: "space-between", width: 420 }} >
-                <View style={styles.addressTabs}>
-                  <Ionicons name="location-outline" size={42} color="#C9C9C9" />
-                  <Text style={{ fontSize: 18, fontFamily: "Manrope_500Medium" }}>Home</Text>
+              <FlatList
+                data={data}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) =>
+                  <TouchableOpacity style={styles.addressTabs}>
+                    <Ionicons name={item.icon} size={37} color="#C9C9C9" />
+                    <Text style={{ fontSize: 18, fontFamily: "Manrope_600SemiBold", marginTop: 5 }}>{item.title}</Text>
+                  </TouchableOpacity>
+                }
+              />
+
+              {/* <View style={styles.addressTabs}>
+                  <Ionicons name="star-outline" size={40} color="#C9C9C9" />
+                  <Text style={{ fontSize: 18, fontFamily: "Manrope_600SemiBold", marginTop: 5 }}>Home</Text>
                 </View>
 
                 <View style={styles.addressTabs}>
@@ -170,8 +224,7 @@ export default function Home(params) {
                 <View style={styles.addressTabs}>
                   <Ionicons name="location-outline" size={42} color="#C9C9C9" />
                   <Text style={{ fontSize: 18, fontFamily: "Manrope_500Medium" }}>Address</Text>
-                </View>
-              </View>
+                </View> */}
             </View>
 
           </BottomSheet>
@@ -192,20 +245,15 @@ export default function Home(params) {
             exiting={FadeOutDown}
           >
             <View style={{ height: '100%', width: windowWidth, backgroundColor: "#fff" }}>
-              {/* <View style={styles.topNav}>
-                <View style={{ width: "10%" }}>
-                  <AntDesign name="close" size={26} style={{ textAlign: "left" }} color="black" />
-                </View>
-
-              </View> */}
 
               <View style={styles.searchButton1}>
-                {/* <MaterialCommunityIcons name="map-marker" size={22} color="#737373" /> */}
                 <GooglePlacesAutocomplete
-                  placeholder='Pick Up Location'
+                  ref={textInputRef}
+                  placeholder='Current Location'
                   fetchDetails={true}
                   onPress={(data, details = null) => {
                     console.log(details.address_components[1].short_name)
+
                     dispatch(
                       setOrigin({
                         location: details.geometry.location,
@@ -235,7 +283,6 @@ export default function Home(params) {
                   keyboardAppearance="light"
                   listViewDisplayed={true}
                   enablePoweredByContainer={false}
-                  autoFocus="true"
                   query={{
                     key: GOOGLE_MAPS_APIKEY,
                     language: 'en',
@@ -265,7 +312,7 @@ export default function Home(params) {
                     if (pickupSet === true) {
                       setTimeout(() => {
                         navigation.navigate('TruckSelection')
-                      }, 2000)
+                      }, 4000)
                     }
                   }}
                   returnKeyType={'return'}
@@ -281,12 +328,11 @@ export default function Home(params) {
                   }}
                   textInputProps={{
                     placeholderTextColor: "#737373",
-                    returnKeyType: "search"
+                    autoFocus: true,
                   }}
                   styles={placesStyler}
                 />
               </View>
-
               <StatusBar style="dark" />
 
 
@@ -321,8 +367,8 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   menuContainer: {
-    width: 42,
-    height: 42,
+    width: 45,
+    height: 45,
     backgroundColor: 'white',
     position: 'absolute',
     top: 60,
@@ -367,16 +413,20 @@ const styles = StyleSheet.create({
 
   },
   searchButton: {
-    height: 50,
+    height: 62,
     width: "100%",
     flexDirection: "row",
     marginVertical: 5,
     paddingHorizontal: 15,
-    borderWidth: 1.5,
-    borderRadius: 12,
+    borderRadius: 15,
     borderColor: '#737373',
-    backgroundColor: "#FAFAFA",
-    alignItems: "center"
+    backgroundColor: "#F1F1F1",
+    alignItems: "center",
+    shadowColor: 'gray',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 10,
   },
   searchButton1: {
     height: 60,
@@ -390,14 +440,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   addressTabs: {
+    height: 90,
+    width: 110,
+    borderRadius: 12,
+    backgroundColor: "#FAFAFA",
     justifyContent: "center",
     alignItems: "center",
-    height: 104,
-    width: 127,
     borderWidth: 1.5,
-    backgroundColor: "#FAFAFA",
+    shadowColor: 'lightgray',
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 10,
     borderColor: "#EDEDED",
-    borderRadius: 10,
+    marginRight: 15,
+    marginTop: 18
   },
 
 });

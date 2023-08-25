@@ -19,12 +19,9 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
 
-
 export default function Settings(params) {
 
-
     const navigation = params.navigation;
-
     const [loggingOut, setLoggingOut] = useState(false);
     const { userData, isLoading: isUserDataLoading } = useUser();
     const windowWidth = Dimensions.get('window').width;
@@ -44,7 +41,6 @@ export default function Settings(params) {
 
 
     const cashActive = () => {
-
         if (active1 == true || active2 == true || active3 == true) {
             setActive1(false);
             setActive2(false);
@@ -52,23 +48,7 @@ export default function Settings(params) {
             setActive(true);
         }
     }
-    const mtnActive = () => {
 
-        if (active == true || active3 == true || active2 == true) {
-            setActive3(false);
-            setActive2(false);
-            setActive(false);
-            setActive1(true);
-        };
-    }
-    const vodaActive = () => {
-        if (active == true || active1 == true || active3 == true) {
-            setActive(false);
-            setActive1(false);
-            setActive2(true);
-            setActive3(false);
-        }
-    }
     const cardActive = () => {
         if (active == true || active1 == true || active2 == true) {
             setActive1(false);
@@ -79,7 +59,6 @@ export default function Settings(params) {
     }
 
     const bottomSheetModalRef = useRef(null);
-
     // variables
     const snapPoints = useMemo(() => ['75%', '75%'], []);
 
@@ -304,21 +283,13 @@ export default function Settings(params) {
                             </View>
                         </TouchableOpacity> */}
 
-
                     </View>
                     <BottomButton style={{ right: 20, width: '90%' }} onPress={() => { navigation.navigate('CreditCard') }}>Add Credit / Debit Card</BottomButton>
                 </BottomSheetModal>
             </BottomSheetModalProvider>
         </GestureHandlerRootView>
 
-
     )
-
-
-
-
-
-
 }
 
 const styles = StyleSheet.create({
@@ -330,7 +301,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: "center",
-        marginBottom: 20,
+        marginBottom: 30,
     },
     categoryText: {
         fontFamily: 'Manrope_700Bold',

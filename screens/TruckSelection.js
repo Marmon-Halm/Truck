@@ -38,10 +38,12 @@ export default function TruckSelection(params) {
   const { userData, isLoading: isUserDataLoading } = useUser();
   const { width, height } = Dimensions.get("window");
   const [position, setPosition] = useState({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: origin.location.lat,
+    longitude: origin.location.lng,
+  });
+  const [destinationPosition, setDestinationPosition] = useState({
+    latitude: destination.location.lat,
+    longitude: destination.location.lng,
   });
 
   // useEffect(() => {
@@ -59,6 +61,12 @@ export default function TruckSelection(params) {
   const [active4, setActive4] = useState(true);
   const [active5, setActive5] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState('');
+  const [estimatedTime, setEstimatedTime] = useState('');
+  const [newTimeMin, setNewTimeMin] = useState('');
+  const [newTimeHr, setNewTimeHr] = useState('');
+  const [etaHrs, setEtaHrs] = useState('');
+  const [etaMinutes, setEtaMinutes] = useState('');
 
   useEffect(() => {
     if (userData) {
@@ -72,13 +80,70 @@ export default function TruckSelection(params) {
         `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${origin.description}&destinations=${destination.description}&key=${GOOGLE_MAPS_APIKEY}`
       ).then((res) => res.json())
         .then(data => {
-          dispatch(setTravelTimeInformation(data.rows[0].elements[0]))
-          console.log(data.rows[0].elements[0])
+          dispatch(setTravelTimeInformation(data.rows[0].elements[0]));
+          const route = data.rows[0];
+          const durationInSeconds = route.elements[0].duration.value;
+          setEtaMinutes(Math.ceil(durationInSeconds / 60))
+          setEtaHrs(Math.ceil((durationInSeconds / 60) / 60))
         })
 
     }
-
     getTravelTime();
+
+
+    const hours = new Date().getHours();
+    const min = new Date().getMinutes();
+    const newMin = min + 5;
+    const loadTime = () => {
+      if (etaMinutes > 60) {
+        setNewTimeHr(etaHrs);
+      } else {
+        setNewTimeMin(etaMinutes)
+      }
+
+    };
+
+    loadTime();
+    const addedHr = hours + newTimeHr;
+    const addedMin = newMin + newTimeMin;
+    const timeAuth = () => {
+      if (addedMin >= 60) {
+        const newAddedHr = parseInt(addedHr) + 1;
+        const newAddedMin = parseInt(addedMin) - 60;
+
+        if (newAddedMin < 10) {
+          setEstimatedTime(
+            newAddedHr + ' :' + " 0" + newAddedMin
+          );
+        } else {
+          setEstimatedTime(
+            newAddedHr + ':' + newAddedMin
+          );
+        }
+
+      } else {
+        setEstimatedTime(
+          addedHr + ':' + addedMin
+        );
+      }
+    };
+    timeAuth();
+    setTimeout(() => {
+      if(newMin >= 60 ) {
+        const newLiveHr = parseInt(hours) + 1;
+        const newLiveMin = parseInt(newMin) - 60;
+
+        setCurrentDate(
+          newLiveHr + ':' + newLiveMin
+        );
+      } else {
+        setCurrentDate(
+          hours + ':' + newMin
+        );
+      }
+
+    }, 1000)
+
   }, [userData, isUserDataLoading, origin, destination, GOOGLE_MAPS_APIKEY])
 
   // useEffect(() => {
@@ -107,7 +172,7 @@ export default function TruckSelection(params) {
       setActive3(false);
       setActive(true);
       setSelectTruck('Request Small Truck')
-      setTruckPrice(1)
+      setTruckPrice(1.3)
     }
   }
   const mActive = () => {
@@ -118,7 +183,7 @@ export default function TruckSelection(params) {
       setActive(false);
       setActive1(true);
       setSelectTruck('Request Medium Truck');
-      setTruckPrice(1.3);
+      setTruckPrice(1.9);
     };
   }
   const lActive = () => {
@@ -177,7 +242,7 @@ export default function TruckSelection(params) {
         <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
             ref={mapRef}
-            style={{ width: width, height: '40.5%' }}
+            style={{ width: width, height: '40%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={{
               latitude: origin.location.lat,
@@ -190,8 +255,8 @@ export default function TruckSelection(params) {
             {
               origin && destination && (
                 <MapViewDirections
-                  origin={origin.description}
-                  destination={destination.description}
+                  origin={position}
+                  destination={destinationPosition}
                   apikey={GOOGLE_MAPS_APIKEY}
                   strokeWidth={3}
                   strokeColor='black'
@@ -270,42 +335,42 @@ export default function TruckSelection(params) {
                 }
               /> */}
               <View style={{ flexDirection: 'row', marginBottom: 15, height: '23%', justifyContent: 'space-between' }}>
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#CFCFCF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#AFAFAF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
                   <View style={styles.iconView}>
-                    <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active ? 1 : 0.5 }} />
+                    <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain" }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active ? 'black' : '#7D7878', textAlign: 'center' }}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: 'black', textAlign: 'center' }}>
                     Small
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#CFCFCF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active1 ? "#F76A03" : "#AFAFAF", backgroundColor: active1 ? "#FFE3CE" : '#F1F1F1' }} onPress={mActive}>
                   <View style={styles.iconView}>
-                    <Image source={medium} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active1 ? 1 : 0.5 }} />
+                    <Image source={medium} style={{ width: '100%', height: '100%', resizeMode: "contain" }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active1 ? 'black' : '#7D7878', textAlign: 'center' }}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: 'black', textAlign: 'center' }}>
                     Medium
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#CFCFCF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active2 ? "#F76A03" : "#AFAFAF", backgroundColor: active2 ? "#FFE3CE" : '#F1F1F1' }} onPress={lActive}>
                   <View style={styles.iconView}>
-                    <Image source={large} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active2 ? 1 : 0.5 }} />
+                    <Image source={large} style={{ width: '100%', height: '100%', resizeMode: "contain" }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active2 ? 'black' : '#7D7878', textAlign: 'center' }}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: 'black', textAlign: 'center' }}>
                     Large
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "#CFCFCF", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
+                <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active3 ? "#F76A03" : "transparent", backgroundColor: active3 ? "#FFE3CE" : '#F1F1F1' }} onPress={hActive}>
                   <View style={styles.iconView}>
-                    <Image source={huge} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: active3 ? 1 : 0.5 }} />
+                    <Image source={huge} style={{ width: '100%', height: '100%', resizeMode: "contain", opacity: 0.4 }} />
                   </View>
 
-                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: active3 ? 'black' : '#7D7878', textAlign: 'center' }}>
+                  <Text style={{ fontFamily: 'Manrope_700Bold', fontSize: 15, color: '#CFCFCF', textAlign: 'center' }}>
                     Huge
                   </Text>
                 </TouchableOpacity>
@@ -334,7 +399,7 @@ export default function TruckSelection(params) {
                   <View style={{ flexDirection: 'row' }}>
                     <MaterialCommunityIcons name="weight" size={24} color="#F76A03" />
                     {
-                      active && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>1 t(tonnes)</Text>
+                      active && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 5 }}>1 t(tonne)</Text>
                     }
                     {
                       active1 && <Text style={{ fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginLeft: 3 }}>1,5 t(tonnes)</Text>
@@ -392,7 +457,7 @@ export default function TruckSelection(params) {
 
                 <View style={styles.tripDesign}>
                   <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>9:50am</Text>
+                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{currentDate}</Text>
                   </View>
 
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -402,23 +467,34 @@ export default function TruckSelection(params) {
                   </View>
 
                   <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>10:43am</Text>
+                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
                   </View>
                 </View>
               </View>
 
-              <TouchableOpacity style={{ height: '12%', paddingHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
-                <Text style={{ fontSize: 16, fontFamily: 'Manrope_600SemiBold' }}>Payment Method</Text>
-                <View style={{ width: '15%', height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, }}>
-                  {
-                    active4 ? (
-                      <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
-                    ) : (
-                      <MaterialCommunityIcons name="credit-card" size={22} color="black" />
-                    )
-                  }
+              <TouchableOpacity style={{ height: '12%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', height: '100%' }}>
+                  <View style={{ width: 53, height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, marginRight: 10 }}>
+                    {
+                      active4 ? (
+                        <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
+                      ) : (
+                        <MaterialCommunityIcons name="credit-card" size={22} color="black" />
+                      )
+                    }
 
+                  </View>
+                  {
+                      active4 ? (
+                        <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Cash</Text>
+                      ) : (
+                        <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Credit / Debit </Text>
+                      )
+                    }
+                  
                 </View>
+                <Feather name="chevron-right" size={24} color="black" />
+
               </TouchableOpacity>
 
 

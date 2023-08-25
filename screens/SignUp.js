@@ -36,10 +36,6 @@ import StyledTextInput from '../componets/Inputs/StyledTextInput';
 
 
 
-
-
-
-
 export default function SignUp(params) {
 
   const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -117,11 +113,7 @@ export default function SignUp(params) {
       const response = await createUserWithEmailAndPassword(auth, email, password)
       const user = response.user;
 
-
       setLoading(false);
-      // showModal('success', 'Great!', 'Verification Email Sent', 'Close');
-
-      // Create a new user
       await sendEmailVerification(user);
 
       try {

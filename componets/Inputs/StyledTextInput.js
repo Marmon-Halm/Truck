@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
 import { styled } from 'styled-components/native';
-import { AntDesign } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import SmallTexts from '../Texts/SmallTexts';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { color } from '../../screens/color';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-
-
-
 
 const { primary, sea, white, little, killed, grey } = color;
 const InputField = styled.TextInput`
@@ -54,24 +45,10 @@ const RightIcon = styled.TouchableOpacity`
     z-index: 1;
 `;
 
-// const [fontsLoaded] = useFonts({
-//     'Manrope_500Medium': require('../../assets/Manrope-Medium.ttf'),
-//     'Manrope_600SemiBold': require('../../assets/Manrope-SemiBold.ttf'),
-//     'Manrope_700Bold': require('../../assets/Manrope-Bold.ttf'),
-// })
-
-// if (!fontsLoaded) {
-//     return undefined;
-// } else {
-//     SplashScreen.hideAsync();
-// }
-
 
 
 
 const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, plain, ...props }) => {
-
-    
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);

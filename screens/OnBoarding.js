@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
     SafeAreaView,
@@ -12,6 +12,11 @@ import {
 } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { useDispatch, useSelector } from 'react-redux';
+import { GOOGLE_MAPS_APIKEY } from "@env";
+import * as Location from 'expo-location';
+import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
+import axios from 'axios';
 
 const slides = [
     {
@@ -60,6 +65,61 @@ const Slide = ({ item }) => {
 };
 
 function OnBoarding({ navigation }) {
+
+    const dispatch = useDispatch();
+    const [value, setValue] = useState("");
+    const origin = useSelector(selectOrigin);
+    const textInputRef = useRef(null);
+    const [currentLocation, setCurrentLocation] = useState(null);
+
+    useEffect(() => {
+        (async () => {
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({
+            });
+            setCurrentLocation(location.coords);
+           
+
+        })();
+
+        if (currentLocation) {
+            const { latitude, longitude } = currentLocation;
+            axios
+                .get(
+                    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_APIKEY}`
+                )
+                .then((response) => {
+                    const { results } = response.data;
+                    if (results.length > 0) {
+                        const formattedAddress = results[1].address_components[1].long_name;
+                        if (textInputRef.current) {
+                            textInputRef.current.setAddressText(formattedAddress);
+                        }
+                    };
+
+                    dispatch(
+                        setOrigin({
+                            location: results[1].geometry.location,
+                            description: results[0].formatted_address,
+                            title: results[1].address_components[1].long_name,
+                        })
+                    );
+
+                    dispatch(setDestination(null));
+                })
+                .catch((error) => {
+                    console.error('Error fetching address:', error);
+                });
+        }
+    }, [currentLocation]);
+
+
 
     const { width, height } = useWindowDimensions();
 

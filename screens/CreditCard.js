@@ -20,7 +20,7 @@ const CreditCard = (params) => {
 
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
-
+    const [enableBtn, setEnableBtn] = useState(false)
     const [cardName, setCardName] = useState("");
     const [cardNumber, setCardNumber] = useState("");
     const [cardExpiry, setCardExpiry] = useState("");
@@ -96,7 +96,17 @@ const CreditCard = (params) => {
                         <View style={{ width: '45%' }}>
                             <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_700Bold' }}>Expiry Date</RegularTexts>
                             <StyledInput
-
+                                keyboardType="numeric"
+                                keyboardAppearance="light"
+                                inputMode='numeric'
+                                returnKeyType='done'
+                                onChangeText={(text) => {
+                                    setCardExpiry(text);
+                                }
+                                }
+                                value={cardExpiry}
+                                minLength={1}
+                                maxLength={4}
                             />
                         </View>
 
@@ -122,7 +132,7 @@ const CreditCard = (params) => {
                 </View>
             </KeyboardAvoiding>
 
-            <BottomButton>Save New Card</BottomButton>
+            <BottomButton disabled={!enableBtn}>Save New Card</BottomButton>
 
 
 

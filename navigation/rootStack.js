@@ -19,7 +19,7 @@ export default function RootNavigator() {
         console.log('previouslyloggedIN', previouslyLoggedIn)
     }, [])
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={previouslyLoggedIn ? "login" : "OnBoarding"}>
+        <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={previouslyLoggedIn ? "Login" : "OnBoarding"}>
             <Stack.Screen name="OnBoarding" component={OnBoarding} />
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="SignUp" component={SignUp} />

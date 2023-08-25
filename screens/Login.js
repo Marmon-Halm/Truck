@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { View, Image, StyleSheet, Alert } from 'react-native';
@@ -58,28 +58,28 @@ export default function Login(params) {
 
   const handleLogin = () => {
     setSubmitting(true);
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+    setTimeout(() => {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
 
-        const user = userCredential.user;
-        if (user.emailVerified) {
-          setUserLoggedIn(true);
-          console.log('Signed In')
-          console.log(user)
-        } else {
-          errorToastr();
-          setLoading(false);
-          setSubmitting(false);
-        }
-      })
-      .catch((error) => {
-        console.log(error.message)
-        if (error.message === "Firebase: Error (auth/invalid-email)." || error.message === "Firebase: Error (auth/user-not-found)." || error.message === "Firebase: Error (auth/wrong-password).") {
-          setErrorMessage('Incorrect Email Address or Password')
-        }
-        setLoading(false)
-        setSubmitting(false)
-      });
+          const user = userCredential.user;
+          if (user.emailVerified) {
+            setUserLoggedIn(true);
+          } else {
+            errorToastr();
+            setLoading(false);
+            setSubmitting(false);
+          }
+        })
+        .catch((error) => {
+          console.log(error.message)
+          if (error.message === "Firebase: Error (auth/invalid-email)." || error.message === "Firebase: Error (auth/user-not-found)." || error.message === "Firebase: Error (auth/wrong-password).") {
+            setErrorMessage('Incorrect Email Address or Password')
+          }
+          setLoading(false)
+          setSubmitting(false)
+        });
+    }, 2000)
   };
 
 
@@ -128,10 +128,8 @@ export default function Login(params) {
               keyboardAppearance="light"
               onChangeText={(text) => {
                 setEmail(text)
-                setEmailValid(EMAIL_REGEX.test(text))
               }}
               value={email}
-              valid={emailValid}
             />
             <MsgText
               style={{ marginBottom: message ? 12 : 5, marginLeft: 3, textAlign: 'left', }}
@@ -146,11 +144,9 @@ export default function Login(params) {
               keyboardAppearance="light"
               onChangeText={(text) => {
                 setPassword(text)
-                setPwdValid(PWD_REGEX.test(text))
               }}
               isPassword={true}
               value={password}
-              valid={pwdValid}
             />
 
             {/* <StyledTextInput

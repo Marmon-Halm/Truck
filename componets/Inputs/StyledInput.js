@@ -7,9 +7,6 @@ import mtn from '../../assets/mtn.jpg'
 import voda from '../../assets/voda.png'
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { color } from '../../screens/color';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-
 
 
 
@@ -56,24 +53,11 @@ const RightIcon = styled.TouchableOpacity`
 `;
 
 
+const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, isMomo, isVoda, valid, ...props }) => {
 
 
-const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, isMat, isMomo, isVoda, valid, ...props }) => {
-
-
-    const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);
     const [textChanged, setTextChanged] = useState(false)
-
-    const customOnBlur = () => {
-        props?.onBlur;
-        setInputBackgroundColor(little);
-    };
-
-    const customOnFocus = () => {
-        props?.onFocus;
-        setInputBackgroundColor(killed);
-    };
 
     return (
         <InputContainer style={{ borderWidth: 1.5, borderColor: '#DCDCDC', backgroundColor: "#FAFAFA" }}>
@@ -81,22 +65,14 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
                 <LeftIcon>
                     <MaterialCommunityIcons name={icon} size={20} color="grey" />
                 </LeftIcon>
-
-                {isMat && <LeftIcon>
-                </LeftIcon>
-                }
             </LeftIconContainer>
-
 
             <InputField
                 {...props}
                 placeholderTextColor={killed}
-                style={{ borderColor: inputBackgroundColor, ...props?.style }}
-                onBlur={customOnBlur}
-                onFocus={customOnFocus}
                 secureTextEntry={isPassword && hidePassword}
                 onChange={(text) => {
-                    setTextChanged(true)
+                    setTextChanged(true);
                 }}
             />
             {isPassword && <RightIconContainer >
@@ -115,25 +91,6 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
                 </RightIcon>
 
             </RightIconContainer>
-            }
-
-            {isMomo && <RightIconContainer >
-
-                <RightIcon>
-                    <Image source={mtn} style={{ width: 24, height: 22, borderRadius: 5 }} />
-                </RightIcon>
-
-            </RightIconContainer>
-            }
-
-            {isVoda && <RightIconContainer >
-
-                <RightIcon >
-                    <Image source={voda} style={{ width: 24, height: 22, borderRadius: 5 }} />
-                </RightIcon>
-
-            </RightIconContainer>
-
             }
 
             {isPhone && <RightIcon>

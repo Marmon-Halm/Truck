@@ -34,31 +34,5 @@ export default function UserPin(params) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 18,
-        paddingRight: 18,
-        paddingLeft: 18,
-        paddingBottom: 0,
-        backgroundColor: "#F8F8F8",
-    },
-    view3: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        width: '100%',
-        marginTop: 30,
-    },
-    button: {
-        flexDirection: 'row',
-        backgroundColor: `#02c38e`,
-        padding: 15,
-        borderRadius: 8,
-        justifyContent: 'center',
-        width: 300,
-    },
-    buttonText: {
-        color: `#fff`,
-        fontSize: 20,
-        fontFamily: 'Manrope_500Medium',
-    },
+
 });
