@@ -88,13 +88,17 @@ export default function SignUp(params) {
     setModalVisible(false);
   };
 
-  const showModal = (type, headerText, message, buttonText) => {
-    setModalMessageType(type);
-    setHeaderText(headerText);
-    setModalMessage(message);
-    setButtonText(buttonText);
-    setModalVisible(true);
-  };
+  // const showModal = (type, headerText, message, buttonText) => {
+  //   // setModalMessageType(type);
+  //   // setHeaderText(headerText);
+  //   // setModalMessage(message);
+  //   // setButtonText(buttonText);
+  //   setModalVisible(true);
+  // };
+
+  // const displayModal = () => {
+  //   return showModal();
+  // }
 
   const checkButtonAndEnableSignUp = () => {
     toggleChecked(!checked);
@@ -319,16 +323,12 @@ export default function SignUp(params) {
 
       <MessageModal
         modalVisible={modalVisible}
-        buttonHandler={buttonHandler}
-        type={modalMessageType}
-        headerText={headerText}
-        message={modalMessage}
-        buttonText={buttonText}
+        // buttonHandler={buttonHandler}
+        // type={modalMessageType}
+        // headerText={headerText}
+        // message={modalMessage}
+        // buttonText={buttonText}
       />
-
-
-
-
 
       <StatusBar style="dark" />
 

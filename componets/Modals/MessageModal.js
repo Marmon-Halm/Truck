@@ -7,6 +7,7 @@ import BigTexts from '../Texts/BigTexts';
 import RegularTexts from '../Texts/RegularTexts';
 import RegularButton from '../Buttons/RegularButton';
 import TitleText from '../Texts/TitleText';
+import { ActivityIndicator } from 'react-native';
 const { white, killed, green, red } = color;
 
 
@@ -35,7 +36,7 @@ const MessageModal = ({ modalVisible, buttonHandler, type, headerText, message, 
 
     return <Modal animationType='slide' visible={modalVisible} transparent={true}>
         <ModalPressableContainer onPress={buttonHandler}>
-            <ModalView>
+            {/* <ModalView>
                 <Feather
                     name={type === 'success' ? 'check-circle' : 'x-circle'} size={60}
                     color={type === 'success' ? green : "red"}
@@ -44,7 +45,8 @@ const MessageModal = ({ modalVisible, buttonHandler, type, headerText, message, 
                 <TitleText style={{ fontSize: 28, marginVertical: 10, textAlign: 'center', color: "black"}}>{headerText}</TitleText>
                 <RegularTexts style={{ textAlign: 'center', marginBottom: 20, fontSize: 16, color: "black"}}>{message}</RegularTexts>
                 <RegularButton onPress={buttonHandler}>{buttonText || ""}</RegularButton>
-            </ModalView>
+            </ModalView> */}
+            <ActivityIndicator size="large" color={"white"} />
         </ModalPressableContainer>
     </Modal>
 };

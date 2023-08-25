@@ -12,7 +12,7 @@ import small from '../assets/small.png';
 import medium from '../assets/medium.png';
 import cash from '../assets/cash.png';
 import large from '../assets/large.png';
-import marker from '../assets/marker.png';
+import pin from '../assets/pin.png';
 import flag from '../assets/flag.png';
 import huge from '../assets/huge.png';
 import RegularButton from '../componets/Buttons/RegularButton';
@@ -22,9 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
 import MapViewDirections from 'react-native-maps-directions';
 import { GOOGLE_MAPS_APIKEY } from "@env";
-
-
-SplashScreen.preventAutoHideAsync();
+import { MaterialIndicator } from 'react-native-indicators';
 
 
 export default function TruckSelection(params) {
@@ -45,15 +43,9 @@ export default function TruckSelection(params) {
     latitude: destination.location.lat,
     longitude: destination.location.lng,
   });
-
-  // useEffect(() => {
-  //   setPosition({
-
-  //   })();
-  // }, []);
-
-  const [truckPrice, setTruckPrice] = useState(1);
-  const [selectTruck, setSelectTruck] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [truckPrice, setTruckPrice] = useState(1.3);
+  const [selectTruck, setSelectTruck] = useState('Request Small Truck');
   const [active, setActive] = useState(true);
   const [active1, setActive1] = useState(false);
   const [active2, setActive2] = useState(false);
@@ -67,6 +59,8 @@ export default function TruckSelection(params) {
   const [newTimeHr, setNewTimeHr] = useState('');
   const [etaHrs, setEtaHrs] = useState('');
   const [etaMinutes, setEtaMinutes] = useState('');
+  const [disabledBtn, setDisabledBtn] = useState(false);
+  const [addedHrPM, setAddedHrPm] = useState(null)
 
   useEffect(() => {
     if (userData) {
@@ -90,7 +84,6 @@ export default function TruckSelection(params) {
     }
     getTravelTime();
 
-
     const hours = new Date().getHours();
     const min = new Date().getMinutes();
     const newMin = min + 5;
@@ -106,43 +99,95 @@ export default function TruckSelection(params) {
     loadTime();
     const addedHr = hours + newTimeHr;
     const addedMin = newMin + newTimeMin;
+    
     const timeAuth = () => {
+
+      if (addedHr > 12) {
+        setAddedHrPm(addedHr - 12);
+        console.log("ADDED HOUR PM", addedHrPM)
+        setEstimatedTime(
+          "0" + addedHrPM + ' :' + addedMin + " PM"
+        );
+        console.log("ETA HOUR IS MORE THAN 12")
+        // if (addedHrPM < 10) {
+        //   setEstimatedTime(
+        //     "0" + addedHrPM + ' :' + addedMin + " PM"
+        //   );
+        // } else {
+        //   setEstimatedTime(
+        //     addedHrPM + ' :' + addedMin + " PM"
+        //   );
+        // }
+
+      };
+
+      if (addedHr > 12 && addedHrPM < 10) {
+        console.log(addedHrPM)
+        setEstimatedTime(
+          "0" + addedHrPM + ' :' + addedMin + " PM"
+        );
+        console.log("ETA HOUR IS MORE THAN 12  && IS LESS THAN 10")
+      }
+
+      else {
+        setEstimatedTime(
+          addedHr + ' :' + addedMin + " AM"
+        );
+      };
+
+
       if (addedMin >= 60) {
         const newAddedHr = parseInt(addedHr) + 1;
         const newAddedMin = parseInt(addedMin) - 60;
 
         if (newAddedMin < 10) {
           setEstimatedTime(
-            newAddedHr + ' :' + " 0" + newAddedMin
+            newAddedHr + ' :' + "0" + newAddedMin
           );
         } else {
           setEstimatedTime(
-            newAddedHr + ':' + newAddedMin
+            "0" + newAddedHr + ':' + newAddedMin
           );
         }
 
       } else {
+        console.log("ETA MINUTES ARE LESS THAN 60")
         setEstimatedTime(
-          addedHr + ':' + addedMin
+          addedHrPM + ':' + addedMin + " PM"
         );
-      }
+      };
+
+
     };
+    
     timeAuth();
+
     setTimeout(() => {
-      if(newMin >= 60 ) {
+
+      if (newMin >= 60) {
         const newLiveHr = parseInt(hours) + 1;
         const newLiveMin = parseInt(newMin) - 60;
-
         setCurrentDate(
-          newLiveHr + ':' + newLiveMin
+          newLiveHr + ':' + newLiveMin + " PM"
+        );
+      } else if (hours > 12) {
+        const newLiveHrPM = hours - 12;
+        setCurrentDate(
+           newLiveHrPM + ':' + newMin + " PM"
+        );
+      } else if (hours > 12 & newMin < 10 ) {
+        setCurrentDate(
+          hours + ':' + "0" + newMin + " PM"
         );
       } else {
         setCurrentDate(
-          hours + ':' + newMin
+          hours + ':' + newMin + " AM"
         );
-      }
+      };
 
-    }, 1000)
+
+
+    }, 2000)
 
   }, [userData, isUserDataLoading, origin, destination, GOOGLE_MAPS_APIKEY])
 
@@ -183,7 +228,7 @@ export default function TruckSelection(params) {
       setActive(false);
       setActive1(true);
       setSelectTruck('Request Medium Truck');
-      setTruckPrice(1.9);
+      setTruckPrice(1.85);
     };
   }
   const lActive = () => {
@@ -209,6 +254,7 @@ export default function TruckSelection(params) {
 
   const bottomSheetModalRef = useRef(null);
   const snapPoints = useMemo(() => ['45%', '45%'], []);
+  const snapPoints1 = useMemo(() => ['60%', '60%'], []);
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
     setModalOpen(true);
@@ -241,14 +287,20 @@ export default function TruckSelection(params) {
       <BottomSheetModalProvider style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
-            ref={mapRef}
-            style={{ width: width, height: '40%' }}
+            ref={map => { this.map = map }}
+            style={{ width: width, height: '41%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={{
               latitude: origin.location.lat,
               longitude: origin.location.lng,
               latitudeDelta: 0.025,
               longitudeDelta: 0.025,
+            }}
+            onMapReady={() => {
+              this.map.fitToSuppliedMarkers(["origin", "destination"], {
+                edgePadding: { top: 50, right: 50, down: 50, left: 50 },
+                animated: true,
+              })
             }}
           >
 
@@ -271,9 +323,9 @@ export default function TruckSelection(params) {
                     latitude: origin.location.lat,
                     longitude: origin.location.lng,
                   }}
-                  identifier='origin'
+                  identifier={"origin"}
                 >
-                  <Image source={marker} />
+                  <Ionicons name="pin-sharp" size={35} color={color.primary} />
                   <Callout style={{ width: 85 }}>
                     <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
                   </Callout>
@@ -288,9 +340,9 @@ export default function TruckSelection(params) {
                     latitude: destination.location.lat,
                     longitude: destination.location.lng,
                   }}
-                  identifier='destination'
+                  identifier={"destination"}
                 >
-                  <Image source={flag} />
+                  <Ionicons name="pin-sharp" size={35} color="black" />
                   <Callout style={{ width: 85 }}>
                     <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
                   </Callout>
@@ -305,7 +357,7 @@ export default function TruckSelection(params) {
 
           <BottomSheet
             disabled={modalOpen}
-            snapPoints={[530, 700]}
+            snapPoints={snapPoints1}
             overDragResistanceFactor={0}
             backgroundStyle={{
               borderRadius: 30, shadowOffset: { width: 0, height: 0 },
@@ -334,7 +386,7 @@ export default function TruckSelection(params) {
                     </TouchableOpacity>
                 }
               /> */}
-              <View style={{ flexDirection: 'row', marginBottom: 15, height: '23%', justifyContent: 'space-between' }}>
+              <View style={{ flexDirection: 'row', marginBottom: 10, height: '30%', justifyContent: 'space-between' }}>
                 <TouchableOpacity disabled={modalOpen} style={{ height: '100%', width: '23%', borderRadius: 15, borderWidth: 1.5, alignItems: 'center', justifyContent: "center", borderColor: active ? "#F76A03" : "#AFAFAF", backgroundColor: active ? "#FFE3CE" : '#F1F1F1' }} onPress={sActive}>
                   <View style={styles.iconView}>
                     <Image source={small} style={{ width: '100%', height: '100%', resizeMode: "contain" }} />
@@ -427,52 +479,29 @@ export default function TruckSelection(params) {
                 </View>
               </View>
 
-              <View style={styles.tripDesignInfo} >
+              <View style={styles.tripAddressNTime} >
                 <View style={styles.tripDesign}>
-
-                  <View>
-                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C', textAlign: 'center' }}>Pickup</Text>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ alignItems: 'center' }}>
                     <View style={styles.circle}></View>
                     <View style={styles.line}></View>
                     <View style={styles.rectangle}></View>
                   </View>
-
-                  <View>
-                    <Text style={{ fontSize: 14.5, fontFamily: 'Manrope_700Bold', marginLeft: 5, color: '#8C8C8C', textAlign: 'center' }}>Drop-off</Text>
-                  </View>
-
                 </View>
 
                 <View style={styles.tripText1}>
-                  <View style={{ width: '50%' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5, textAlign: 'left' }}>{origin.title}</Text>
+                  <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'left' }}>{origin.title}</Text>
+                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{currentDate}</Text>
                   </View>
-                  <View style={{ width: '50%' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.tripDesign}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{currentDate}</Text>
-                  </View>
-
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <View style={{ width: 12, height: 12, borderRadius: 100 / 2, borderWidth: 3, borderColor: 'transparent', backgroundColor: 'transparent' }}></View>
-                    <View style={{ width: 75, height: 1, backgroundColor: 'transparent' }}></View>
-                    <View style={{ width: 12, height: 12, borderWidth: 3.5, borderColor: 'transparent' }}></View>
-                  </View>
-
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 16, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
+                  <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
+                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
                   </View>
                 </View>
+
               </View>
 
-              <TouchableOpacity style={{ height: '12%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
+              <TouchableOpacity style={{ height: '15%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', height: '100%' }}>
                   <View style={{ width: 53, height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, marginRight: 10 }}>
                     {
@@ -485,13 +514,13 @@ export default function TruckSelection(params) {
 
                   </View>
                   {
-                      active4 ? (
-                        <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Cash</Text>
-                      ) : (
-                        <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Credit / Debit </Text>
-                      )
-                    }
-                  
+                    active4 ? (
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Cash</Text>
+                    ) : (
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Credit / Debit </Text>
+                    )
+                  }
+
                 </View>
                 <Feather name="chevron-right" size={24} color="black" />
 
@@ -509,34 +538,87 @@ export default function TruckSelection(params) {
               <AntDesign name="arrowleft" size={26} style={{ textAlign: "left" }} color="black" />
             </TouchableOpacity>
             <View style={{ width: '80%' }}>
-              {
-                active && <RegularButton onPress={() => {
-                  setTimeout(() => {
-                    navigation.navigate('LocationsPage')
-                  }, 1000)
-                }}>Request Small Truck</RegularButton>
+
+
+              {/* {
+                active1 && loading ? (
+                  <RegularButton><MaterialIndicator color='white' size={18} trackWidth={30 / 10} /></RegularButton>
+                ) : (
+                  <RegularButton onPress={() => {
+                    setTimeout(() => {
+                      navigation.navigate('LocationsPage');
+                    }, 2000)
+                    setLoading(true);
+                  }}>{selectTruck}</RegularButton>
+                )
+               
+                 
               }
               {
-                active1 && <RegularButton onPress={() => {
+                active2 && loading ? (
+                  <RegularButton><MaterialIndicator color='white' size={18} trackWidth={30 / 10} /></RegularButton>
+                ) : (
+                  <RegularButton onPress={() => {
+                    setTimeout(() => {
+                      navigation.navigate('LocationsPage');
+                    }, 2000)
+                    setLoading(true);
+                  }}>{selectTruck}</RegularButton>
+                )
+               
+                 
+              }
+              {
+                active3 && loading ? (
+                  <RegularButton><MaterialIndicator color='white' size={18} trackWidth={30 / 10} /></RegularButton>
+                ) : (
+                  <RegularButton onPress={() => {
+                    setTimeout(() => {
+                      navigation.navigate('LocationsPage');
+                    }, 2000)
+                    setLoading(true);
+                  }}>{selectTruck}</RegularButton>
+                )
+               
+                 
+              } */}
+              {
+                active && <RegularButton disabled={disabledBtn} onPress={() => {
+                  setSelectTruck(<MaterialIndicator color='white' size={18} trackWidth={30 / 10} />);
+                  setDisabledBtn(true);
                   setTimeout(() => {
                     navigation.navigate('LocationsPage')
-                  }, 1000)
+                  }, 2000)
                 }}>{selectTruck}</RegularButton>
               }
               {
-                active2 && <RegularButton onPress={() => {
+                active1 && <RegularButton disabled={disabledBtn} onPress={() => {
+                  setSelectTruck(<MaterialIndicator color='white' size={18} trackWidth={30 / 10} />);
+                  setDisabledBtn(true);
                   setTimeout(() => {
                     navigation.navigate('LocationsPage')
-                  }, 1000)
+                  }, 2000)
                 }}>{selectTruck}</RegularButton>
               }
               {
-                active3 && <RegularButton onPress={() => {
+                active2 && <RegularButton disabled={disabledBtn} onPress={() => {
+                  setSelectTruck(<MaterialIndicator color='white' size={18} trackWidth={30 / 10} />);
+                  setDisabledBtn(true);
                   setTimeout(() => {
                     navigation.navigate('LocationsPage')
-                  }, 1000)
+                  }, 2000)
                 }}>{selectTruck}</RegularButton>
               }
+              {
+                active3 && <RegularButton disabled={disabledBtn} onPress={() => {
+                  setSelectTruck(<MaterialIndicator color='white' size={18} trackWidth={30 / 10} />);
+                  setDisabledBtn(true);
+                  setTimeout(() => {
+                    navigation.navigate('LocationsPage');
+                  }, 2000)
+                }}>{selectTruck}</RegularButton>
+              }
+
 
             </View>
           </View>
@@ -685,26 +767,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tripInfo: {
-    height: '25%',
+    height: '35%',
     width: '100%',
     backgroundColor: '#F1F1F1',
-    marginBottom: 15,
+    marginBottom: 10,
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: "space-between",
   },
-  tripDesignInfo: {
-    height: '27%',
+  tripAddressNTime: {
+    height: '35%',
     width: '100%',
     backgroundColor: '#F1F1F1',
     marginBottom: 15,
+    flexDirection: 'row',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,
     alignItems: 'center',
-    justifyContent: "space-between",
   },
   tripText: {
     flexDirection: 'row',
@@ -712,22 +794,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   tripText1: {
-    flexDirection: 'row',
     width: '100%',
   },
   tripDesign: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '100%',
+    width: '7%',
   },
   circle: {
-    width: 12, height: 12, borderRadius: 100 / 2, borderWidth: 3, borderColor: 'black'
+    width: 10, height: 10, borderRadius: 100 / 2, borderWidth: 3, borderColor: 'black'
   },
   line: {
-    width: 75, height: 1.5, backgroundColor: 'black'
+    width: 2, height: 35, backgroundColor: 'black'
   },
   rectangle: {
-    width: 12, height: 12, borderWidth: 3.5, borderColor: 'black'
+    width: 10, height: 10, borderWidth: 3.5, borderColor: 'black'
   },
   iconView: {
     width: '75%',

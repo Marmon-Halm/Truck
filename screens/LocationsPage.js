@@ -42,6 +42,7 @@ const LocationsPage = (params) => {
     useEffect(() => {
         setTimeout(() => {
             setDataIn(true);
+            navigation.navigate('TruckSelection');
         }, 5000)
     }, [])
 
@@ -56,142 +57,72 @@ const LocationsPage = (params) => {
         <View style={{ height: '100%', width: windowWidth }}>
 
 
-            {
-                dataIn ? (
-                    <MapView
-                        ref={mapRef}
-                        style={{ width: width, height: '70%' }}
-                        provider={PROVIDER_GOOGLE}
-                        initialRegion={{
-                            latitude: origin.location.lat,
-                            longitude: origin.location.lng,
-                            latitudeDelta: 0.045,
-                            longitudeDelta: 0.045,
-                        }}
-                    >
+            <MapView
+                ref={mapRef}
+                style={{ width: width, height: '100%' }}
+                provider={PROVIDER_GOOGLE}
+                initialRegion={{
+                    latitude: origin.location.lat,
+                    longitude: origin.location.lng,
+                    latitudeDelta: 0.045,
+                    longitudeDelta: 0.045,
+                }}
+            >
 
-                        {
-                            origin && destination && (
-                                <MapViewDirections
-                                    origin={origin.description}
-                                    destination={destination.description}
-                                    apikey={GOOGLE_MAPS_APIKEY}
-                                    strokeWidth={3}
-                                    strokeColor='black'
-                                />
-                            )
-                        }
+                {
+                    origin && destination && (
+                        <MapViewDirections
+                            origin={origin.description}
+                            destination={destination.description}
+                            apikey={GOOGLE_MAPS_APIKEY}
+                            strokeWidth={3}
+                            strokeColor='black'
+                        />
+                    )
+                }
 
-                        {
-                            origin?.location && (
-                                <Marker
-                                    coordinate={{
-                                        latitude: origin.location.lat,
-                                        longitude: origin.location.lng,
-                                    }}
-                                    identifier='origin'
-                                >
-                                    <Image source={marker} />
-                                    <Callout style={{ width: 85 }}>
-                                        <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
-                                    </Callout>
-                                </Marker>
-                            )
-                        }
+                {
+                    origin?.location && (
+                        <Marker
+                            coordinate={{
+                                latitude: origin.location.lat,
+                                longitude: origin.location.lng,
+                            }}
+                            identifier='origin'
+                        >
+                            <Image source={marker} />
+                            <Callout style={{ width: 85 }}>
+                                <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
+                            </Callout>
+                        </Marker>
+                    )
+                }
 
-                        {
-                            destination?.location && (
-                                <Marker
-                                    coordinate={{
-                                        latitude: destination.location.lat,
-                                        longitude: destination.location.lng,
-                                    }}
-                                    identifier='destination'
-                                >
-                                    <Image source={flag} />
-                                    <Callout style={{ width: 85 }}>
-                                        <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
-                                    </Callout>
-                                </Marker>
-                            )
-                        }
+                {
+                    destination?.location && (
+                        <Marker
+                            coordinate={{
+                                latitude: destination.location.lat,
+                                longitude: destination.location.lng,
+                            }}
+                            identifier='destination'
+                        >
+                            <Image source={flag} />
+                            <Callout style={{ width: 85 }}>
+                                <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
+                            </Callout>
+                        </Marker>
+                    )
+                }
+            </MapView>
 
-                    </MapView>
 
-                ) : (
-                    <MapView
-                        ref={mapRef}
-                        style={{ width: width, height: height }}
-                        provider={PROVIDER_GOOGLE}
-                        initialRegion={{
-                            latitude: origin.location.lat,
-                            longitude: origin.location.lng,
-                            latitudeDelta: 0.045,
-                            longitudeDelta: 0.045,
-                        }}
-                    >
-
-                        {
-                            origin && destination && (
-                                <MapViewDirections
-                                    origin={origin.description}
-                                    destination={destination.description}
-                                    apikey={GOOGLE_MAPS_APIKEY}
-                                    strokeWidth={3}
-                                    strokeColor='black'
-                                />
-                            )
-                        }
-
-                        {
-                            origin?.location && (
-                                <Marker
-                                    coordinate={{
-                                        latitude: origin.location.lat,
-                                        longitude: origin.location.lng,
-                                    }}
-                                    identifier='origin'
-                                >
-                                    <Image source={marker} />
-                                    <Callout style={{ width: 85 }}>
-                                        <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
-                                    </Callout>
-                                </Marker>
-                            )
-                        }
-
-                        {
-                            destination?.location && (
-                                <Marker
-                                    coordinate={{
-                                        latitude: destination.location.lat,
-                                        longitude: destination.location.lng,
-                                    }}
-                                    identifier='destination'
-                                >
-                                    <Image source={flag} />
-                                    <Callout style={{ width: 85 }}>
-                                        <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
-                                    </Callout>
-                                </Marker>
-                            )
-                        }
-
-                    </MapView>
-                )
-            }
-
-            {
-                !dataIn && (
-                    <View style={styles.topNav}>
-                        <Text style={{ fontSize: 22, fontFamily: 'Manrope_600SemiBold', }}>Looking for a vehicle</Text>
-                        <View>
-                            <MaterialIndicator color='black' size={24} trackWidth={40 / 10} />
-                        </View>
-                    </View>
-                )
-            }
-
+            <View style={styles.topNav}>
+                <Text style={{ fontSize: 22, fontFamily: 'Manrope_600SemiBold', }}>Looking for a vehicle</Text>
+                <View>
+                    <MaterialIndicator color='black' size={24} trackWidth={40 / 10} />
+                </View>
+            </View>
             <StatusBar style="dark" />
         </View>
 

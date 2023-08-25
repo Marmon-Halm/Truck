@@ -17,6 +17,7 @@ import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
 import axios from 'axios';
+import MessageModal from '../componets/Modals/MessageModal';
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
 
@@ -49,6 +50,7 @@ export default function Home(params) {
   const [modalOpen, setModalOpen] = useState(false);
   const [valid, setValid] = useState(false);
   const { width, height } = Dimensions.get("window");
+  const [modalVisible, setModalVisible] = useState(false);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
   const [pickupSet, setPickupSet] = useState(true);
@@ -65,7 +67,7 @@ export default function Home(params) {
     SetDisplayAddress(origin.title);
     if (textInputRef.current) {
       textInputRef.current.setAddressText(displayAddress);
-  }
+    }
   }, [])
 
 
@@ -137,6 +139,18 @@ export default function Home(params) {
   const handleSheetChanges = useCallback((index) => {
     console.log('handleSheetChanges', index);
   }, []);
+
+  const showModal = (type, headerText, message, buttonText) => {
+    // setModalMessageType(type);
+    // setHeaderText(headerText);
+    // setModalMessage(message);
+    // setButtonText(buttonText);
+    setModalVisible(true);
+  };
+
+  const displayModal = () => {
+    return showModal();
+  }
 
 
   // FONTS
@@ -252,8 +266,6 @@ export default function Home(params) {
                   placeholder='Current Location'
                   fetchDetails={true}
                   onPress={(data, details = null) => {
-                    console.log(details.address_components[1].short_name)
-
                     dispatch(
                       setOrigin({
                         location: details.geometry.location,
@@ -300,7 +312,6 @@ export default function Home(params) {
                   placeholder='Drop Off'
                   fetchDetails={true}
                   onPress={(data, details = null) => {
-                    console.log(details.address_components[1].short_name)
                     dispatch(
                       setDestination({
                         location: details.geometry.location,
@@ -310,8 +321,10 @@ export default function Home(params) {
                     );
 
                     if (pickupSet === true) {
+                      displayModal();
                       setTimeout(() => {
-                        navigation.navigate('TruckSelection')
+                        navigation.navigate('TruckSelection');
+                        setModalVisible(false);
                       }, 4000)
                     }
                   }}
@@ -341,10 +354,11 @@ export default function Home(params) {
 
           </Animated.View>
         </BottomSheetModal>
+
+        <MessageModal
+          modalVisible={modalVisible}
+        />
       </BottomSheetModalProvider>
-
-
-
     </GestureHandlerRootView>
 
 

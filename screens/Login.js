@@ -18,6 +18,8 @@ import StyledInput from '../componets/Inputs/StyledInput';
 const { primary } = color;
 import { MaterialIndicator } from 'react-native-indicators';
 import ToastrError from '../componets/Toastr Notification/ToastrError';
+import LoadingModal from '../componets/Modals/LoadingModal';
+import MessageModal from '../componets/Modals/MessageModal';
 
 
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -189,10 +191,12 @@ export default function Login(params) {
         ) : null
 
       }
+      
 
       <StatusBar style="dark" />
 
     </KeyboardAvoiding>
   </MainContainer>
+  {/* <MessageModal /> */}
 }
 
