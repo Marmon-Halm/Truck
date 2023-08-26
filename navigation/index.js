@@ -10,7 +10,7 @@ export default function Navigation() {
     const {userLoggedIn} = useContext(UserContext)
     return (
         <NavigationContainer>
-         {userLoggedIn? <UserNavigator /> : <RootNavigator />}
+        {userLoggedIn? <UserNavigator /> : <RootNavigator />}
         </NavigationContainer>
     )
 }

@@ -6,7 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { signOut } from 'firebase/auth';
-import { auth } from '../config';
+import { auth, db } from '../config';
 import { UserContext } from '../contexts/UserContext';
 import { StatusBarHeight } from '../componets/shared';
 import cash from '../assets/cash.png';
@@ -17,12 +17,16 @@ import { color } from './color';
 import useUser from '../hook/useUser';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { doc, updateDoc } from '@firebase/firestore';
+import { selectCardNumbers } from '../slices/navSlice';
+import { useSelector } from 'react-redux';
 
 
 export default function Settings(params) {
 
     const navigation = params.navigation;
     const [loggingOut, setLoggingOut] = useState(false);
+    const cardNumbers = useSelector(selectCardNumbers);
     const { userData, isLoading: isUserDataLoading } = useUser();
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -31,32 +35,69 @@ export default function Settings(params) {
     const [active1, setActive1] = useState(false);
     const [active2, setActive2] = useState(false);
     const [active3, setActive3] = useState(false);
+    const [userPhoto, setUserPhoto] = useState('');
+    const [creditcardNumber, setCreditcardNumber] = useState("");
+    const [creditCardIn, setCreditCardIn] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
 
     useEffect(() => {
-        if (userData) {
-            //  console.log('user data ', userData)
+        if (userData.ccSelected == true ) {
+            setActive(false);
+            setActive3(true);
         }
+
     }, [userData, isUserDataLoading])
 
 
-    const cashActive = () => {
-        if (active1 == true || active2 == true || active3 == true) {
+    const cashActive = async () => {
+        if (active3 == true) {
             setActive1(false);
             setActive2(false);
             setActive3(false);
             setActive(true);
+
+            const userID = doc(db, "users", userData.uid)
+            await updateDoc(userID, {
+                ccSelected: false
+            });
         }
     }
 
-    const cardActive = () => {
-        if (active == true || active1 == true || active2 == true) {
+    const cardActive = async () => {
+        if (active == true) {
             setActive1(false);
             setActive(false);
             setActive2(false);
             setActive3(true);
+
+            const userID = doc(db, "users", userData.uid)
+            await updateDoc(userID, {
+                ccSelected: true
+            });
         };
     }
+
+    const loadData = () => {
+        setTimeout(() => {
+            const newN = userData.cardNumber;
+            const newSelected = userData.cardAdded;
+           // console.log(userData.phoneNumber);
+            if (userData) {
+                setUserPhoto(userData.photoUri);
+                setCreditcardNumber(newN);
+            }
+
+            if ( newSelected == false ) {
+                setCreditCardIn(false);
+            } else {
+                setCreditCardIn(true)
+            }
+
+
+        }, 2000)
+    }
+
+    loadData();
 
     const bottomSheetModalRef = useRef(null);
     // variables
@@ -125,8 +166,9 @@ export default function Settings(params) {
 
                     <View style={{ paddingHorizontal: 20 }}>
                         <View style={{ width: '100%', alignItems: 'center', marginBottom: 35, marginTop: 20 }}>
-                            <View style={{ width: 100, height: 100, borderRadius: 100 / 2, backgroundColor: '#E8E8E8', alignItems: 'center', justifyContent: 'center', marginBottom: 15 }}>
-                                <AntDesign name="user" size={45} color="#787878" />
+                            <View style={{ width: 120, height: 120, borderRadius: 120 / 2, backgroundColor: '#E8E8E8', alignItems: 'center', justifyContent: 'center', marginBottom: 15 }}>
+                                {/* <AntDesign name="user" size={45} color="#787878" /> */}
+                                {userData.photoUri && <Image source={{ uri: userData.photoUri }} style={{ width: '100%', height: '100%', borderRadius: 120 / 2, }} />}
                             </View>
 
                             <Text style={styles.profileText}>{userData?.firstName}</Text>
@@ -221,7 +263,7 @@ export default function Settings(params) {
 
                         <TouchableOpacity style={styles.option} onPress={cashActive}>
                             <View style={styles.iconView}>
-                                <Image source={cash} style={{ width: 24, height: 22, borderRadius: 5 }} />
+                                <Image source={require('../assets/cash.png')} style={{ width: 24, height: 22, borderRadius: 5 }} />
                             </View>
 
                             <View style={{ width: '70%', paddingLeft: 15 }}>
@@ -267,21 +309,21 @@ export default function Settings(params) {
                             </View>
                         </TouchableOpacity> */}
 
-                        {/* <TouchableOpacity style={styles.option} onPress={cardActive}>
-                            <View style={styles.iconView}>
-                                <MaterialCommunityIcons name="credit-card" size={22} color="black" />
-                            </View>
-
-                            <View style={{ width: '70%', paddingLeft: 15 }}>
-                                <Text style={styles.optionText}>
-                                    Credit / Debit Card
-                                </Text>
-                            </View>
-
-                            <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                <MaterialCommunityIcons name={!active3 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
-                            </View>
-                        </TouchableOpacity> */}
+                        {
+                            creditCardIn && <TouchableOpacity style={styles.option} onPress={cardActive}>
+                                <View style={styles.iconView}>
+                                    <MaterialCommunityIcons name="credit-card" size={22} color="black" />
+                                </View>
+                                <View style={{ width: '70%', paddingLeft: 15 }}>
+                                    <Text style={styles.optionText}>
+                                        {creditcardNumber}
+                                    </Text>
+                                </View>
+                                <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                    <MaterialCommunityIcons name={!active3 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
+                                </View>
+                            </TouchableOpacity>
+                        }
 
                     </View>
                     <BottomButton style={{ right: 20, width: '90%' }} onPress={() => { navigation.navigate('CreditCard') }}>Add Credit / Debit Card</BottomButton>
@@ -351,10 +393,10 @@ const styles = StyleSheet.create({
     profileText: {
         fontSize: 22,
         fontFamily: 'Manrope_700Bold',
-        marginBottom: 5,
+        marginBottom: 3,
     },
     profileText2: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#717171',
         fontFamily: 'Manrope_600SemiBold'
     },

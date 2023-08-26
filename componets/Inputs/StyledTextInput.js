@@ -48,7 +48,7 @@ const RightIcon = styled.TouchableOpacity`
 
 
 
-const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, plain, ...props }) => {
+const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, ...props }) => {
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);
@@ -65,7 +65,7 @@ const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat,
     };
 
     return (
-        <InputContainer style={{ borderWidth: 1.5, borderColor: valid ? 'green' : "#FA5F55", backgroundColor: "#FAFAFA" }}>
+        <InputContainer style={{ borderWidth: 1.5, borderColor: textChanged ? valid ? 'green' : "#FA5F55" : "#DCDCDC", backgroundColor: "#FAFAFA" }}>
             <LeftIconContainer>
                 <LeftIcon>
                 <MaterialCommunityIcons name={icon} size={20} color="grey" />

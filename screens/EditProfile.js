@@ -14,8 +14,10 @@ import StyledInput from '../componets/Inputs/StyledInput';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import useUser from '../hook/useUser';
-import { setDoc, doc, uid } from '@firebase/firestore';
+import { setDoc, doc, uid, updateDoc } from '@firebase/firestore';
 import { db } from '../config';
+import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
+import { MaterialIndicator } from 'react-native-indicators';
 
 
 
@@ -27,31 +29,51 @@ export default function EditProfile(params) {
     const [isSuccessMessage, setIsSuccessMessage] = useState(false);
     const [upload, setUpload] = useState(false);
     const [photoUri, setPhotoUri] = useState(null);
+    // const [userPhoto, setUserPhoto] = useState('');
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
+    const [disabledBtn, setDisabledBtn] = useState(false);
+    const [enableBtn, setEnableBtn] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [bodyText, setBodyText] = useState('');
     const [image, setImage] = useState(null);
-    const { userData, isLoading: isUserDataLoading } = useUser();   
+    const [toastrVisible, setToastrVisible] = useState(false);
+    const { userData, isLoading: isUserDataLoading } = useUser();
 
-    useEffect(()=> {
-        if(userData){
+    useEffect(() => {
+        if (userData) {
             // console.log('user data ', userData)
             setFirstName(userData.firstName);
             setPhoneNumber(userData.phoneNumber);
             setEmail(userData.email);
+            setImage(userData.photoUri);
+            setUpload(true);
         }
     }, [userData, isUserDataLoading])
+
+    const showToastr = (bodyText) => {
+        setBodyText(bodyText);
+    }
+
+    const successToastr = () => {
+        setTimeout(() => {
+            setToastrVisible(false);
+        }, 4000)
+        setToastrVisible(true);
+        return showToastr('Profile Updated!');
+    };
 
     const pickImage = async () => {
         setUpload(true);
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
         });
         setPhotoUri(result?.uri)
+        setEnableBtn(true);
 
         console.log("&&&", photoUri);
 
@@ -60,14 +82,44 @@ export default function EditProfile(params) {
         }
     };
 
+
     const updateUserInfo = async () => {
-       try {
-        const userRef = doc(db, 'users', uid)
-        setDoc(userRef, { photoUri: photoUri}, { merge: true});
-        console.log("!UPDATING")
-       } catch (error) {
-        console.log("error resolving promise ", error);
-      }
+        setDisabledBtn(true);
+        console.log(photoUri, "THIS IS PHOTO URI")
+
+        if (photoUri == null) {
+            const userID = doc(db, "users", userData.uid)
+            console.log("NO PHOTO UPLOADED")
+            await updateDoc(userID, {
+                firstName: firstName,
+                phoneNumber: phoneNumber,
+                email: email,
+            });
+
+
+            setTimeout(() => {
+                setDisabledBtn(false)
+                successToastr();
+                setEnableBtn(false);
+            }, 3000)
+        } else {
+            console.log("PHOTO UPLOADED")
+            const userID = doc(db, "users", userData.uid)
+            await updateDoc(userID, {
+                firstName: firstName,
+                phoneNumber: phoneNumber,
+                email: email,
+                photoUri: photoUri
+            });
+    
+    
+            setTimeout(() => {
+                setDisabledBtn(false)
+                successToastr();
+                setEnableBtn(false);
+            }, 3000)
+        }
+       
     };
 
 
@@ -96,11 +148,11 @@ export default function EditProfile(params) {
 
                 <View >
                     <View style={{ width: '100%', alignItems: 'center', marginBottom: 15, marginTop: 25 }}>
-                        <TouchableOpacity style={{ width: 100, height: 100, borderRadius: 100 / 2, backgroundColor: '#E8E8E8', marginBottom: 12, borderWidth: 1, borderColor: 'grey' }} onPress={pickImage}>
-                            <View style={{ width: upload ? 0 : '100%', height: upload ? 0 : '100%' , alignItems: 'center', justifyContent: 'center',}}>
-                            <MaterialCommunityIcons name="image-plus" size={45} color="grey" />
+                        <TouchableOpacity style={{ width: 120, height: 120, borderRadius: 120 / 2, backgroundColor: '#E8E8E8', marginBottom: 12, }} onPress={pickImage}>
+                            <View style={{ width: upload ? 0 : '100%', height: upload ? 0 : '100%', alignItems: 'center', justifyContent: 'center', }}>
+                                <MaterialCommunityIcons name="image-plus" size={45} color="grey" />
                             </View>
-                            {image && <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 100 / 2, }} />}
+                            {image && <Image source={{ uri: image }} style={{ width: '100%', height: '100%', borderRadius: 120 / 2, }} />}
                         </TouchableOpacity>
 
                     </View>
@@ -122,8 +174,12 @@ export default function EditProfile(params) {
                                 <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Username</RegularTexts>
                                 <StyledInput
                                     icon="account-outline"
-                                    onChangeText={(text) => setFirstName(text)}
+                                    onChangeText={(text) => {
+                                        setFirstName(text);
+                                        setEnableBtn(true);
+                                    }}
                                     onBlur={handleBlur('firstName')}
+                                    disabled={disabledBtn}
                                     enablesReturnKeyAutomatically={true}
                                     keyboardAppearance="light"
                                     value={firstName}
@@ -136,12 +192,13 @@ export default function EditProfile(params) {
 
                                 <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Email Address</RegularTexts>
                                 <StyledInput
-                                    placeholder={userData.email}
                                     icon="email-outline"
                                     keyboardType="email-address"
                                     autoCapitalize="none"
+                                    disabled={disabledBtn}
                                     onChangeText={(text) => {
-                                        setEmail(text)
+                                        setEmail(text);
+                                        setEnableBtn(true);
                                     }}
                                     value={email}
                                     onBlur={handleBlur('email')}
@@ -159,9 +216,13 @@ export default function EditProfile(params) {
                                     icon="phone-outline"
                                     keyboardType="numeric"
                                     keyboardAppearance="light"
+                                    disabled={disabledBtn}
                                     inputMode='numeric'
                                     returnKeyType='done'
-                                    onChangeText={(text) => setPhoneNumber(text)}
+                                    onChangeText={(text) => {
+                                        setPhoneNumber(text)
+                                        setEnableBtn(true);
+                                    }}
                                     value={phoneNumber}
                                     minLength={1}
                                     maxLength={10}
@@ -178,7 +239,20 @@ export default function EditProfile(params) {
 
                 <StatusBar style="dark" />
             </KeyboardAvoiding>
-            <BottomButton onPress={updateUserInfo}>Save Changes</BottomButton>
+
+            {!disabledBtn && <BottomButton disabled={!enableBtn} style={{ opacity: enableBtn ? 1 : 0.3, width: '100%' }} onPress={updateUserInfo}>Save Changes</BottomButton>}
+            {disabledBtn && 
+                <BottomButton disabled={disabledBtn} style={{ alignItems: 'center', width: '100%' }}>
+                    <MaterialIndicator color='white' size={18} trackWidth={30 / 10} />
+                </BottomButton>
+            }
+            {
+                toastrVisible ? (<ToastrSuccess
+                    bodyText={bodyText}
+                />
+                ) : null
+
+            }
         </View>
     )
 }

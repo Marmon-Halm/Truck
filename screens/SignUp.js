@@ -52,7 +52,7 @@ export default function SignUp(params) {
   const [loading, setLoading] = useState('');
   const [message, setMessage] = useState('');
   const [checkboxEnabled, setCheckboxEnabled] = useState(false);
-
+  const [textChanged, setTextChanged] = useState(false)
   //MODAL TEXT
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessageType, setModalMessageType] = useState('');
@@ -123,10 +123,13 @@ export default function SignUp(params) {
       try {
         await setDoc(doc(db, "users", user?.uid), {
           uid: user?.uid,
-          country: country,
           firstName: firstName,
           email: email,
           phoneNumber: phoneNumber,
+          photoUri: '',
+          ccSelected: '',
+          cardAdded: '',
+          ccDetails: '',
         })
           .then((res) => {
             successToastr();
@@ -183,11 +186,9 @@ export default function SignUp(params) {
     <AntDesign name="arrowleft" size={30} color="black" onPress={() => { navigation.goBack() }} />
     <KeyboardAvoiding>
 
-
-
       <TitleText style={{ marginBottom: 15, marginTop: 7, }}>Register here, it's free!</TitleText>
 
-      <RegularTexts>Country</RegularTexts>
+      {/* <RegularTexts>Country</RegularTexts>
 
       <View style={styles.pickerView}>
 
@@ -220,7 +221,7 @@ export default function SignUp(params) {
         </View>
 
 
-      </View>
+      </View> */}
 
 
 
@@ -231,7 +232,7 @@ export default function SignUp(params) {
         onSubmit={(values, { setSubmitting }) => {
           if (firstName === "" || email === "" || phoneNumber === "" || password === "") {
             setMessage('Please enter your details');
-            console.log('first name ', firstName)
+            console.log('Username ', firstName)
             console.log('phone ', phoneNumber)
             console.log('email ', email)
             console.log('pass ', password)
@@ -246,7 +247,7 @@ export default function SignUp(params) {
         {({ handleChange, handleBlur, handleSubmit, values, isSubmitting, }) => (
           <>
 
-            <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>First Name</RegularTexts>
+            <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Username</RegularTexts>
             <StyledInput
               icon="account-outline"
               onChangeText={(text) => setFirstName(text)}
@@ -268,7 +269,10 @@ export default function SignUp(params) {
               keyboardAppearance="light"
               inputMode='numeric'
               returnKeyType='done'
-              onChangeText={(text) => setPhoneNumber(text)}
+              onChangeText={(text) => {
+                
+                setPhoneNumber(text);
+              } }
               value={phoneNumber}
               minLength={1}
               maxLength={10}
@@ -280,11 +284,12 @@ export default function SignUp(params) {
             </MsgText>
 
             <RegularTexts style={{ marginBottom: 8, fontSize: 15, fontFamily: 'Manrope_600SemiBold' }}>Email Address</RegularTexts>
-            <StyledInput
+            <StyledTextInput
               icon="email-outline"
               keyboardType="email-address"
               autoCapitalize="none"
               onChangeText={(text) => {
+                setTextChanged(true)
                 setEmail(text)
                 setEmailValid(EMAIL_REGEX.test(text))
               }}
@@ -304,6 +309,7 @@ export default function SignUp(params) {
             <StyledTextInput
               icon="lock-outline"
               onChangeText={(text) => {
+                setTextChanged(true)
                 setPassword(text)
                 setPwdValid(PWD_REGEX.test(text))
                 setCheckboxEnabled(true)

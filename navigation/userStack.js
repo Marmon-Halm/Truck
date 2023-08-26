@@ -6,7 +6,7 @@ import EditProfile from "../screens/EditProfile";
 import Payment from "../screens/Payment";
 import CreditCard from "../screens/CreditCard";
 import Momo from "../screens/Momo";
-import VodaCash from "../screens/VodaCash";
+import WaitingForDriver from "../screens/WaitingForDriver";
 import LocationsPage from "../screens/LocationsPage";
 import TruckSelection from "../screens/TruckSelection";
 
@@ -26,8 +26,7 @@ export default function UserNavigator() {
             />
             <Stack.Screen name="EditProfile" component={EditProfile} />
             <Stack.Screen name="Payment" component={Payment} />
-            <Stack.Screen name="Momo" component={Momo} />
-            <Stack.Screen name="VodaCash" component={VodaCash} />
+            <Stack.Screen name="WaitingForDriver" component={WaitingForDriver} />
             <Stack.Screen name="LocationsPage" component={LocationsPage} />
             <Stack.Screen name="TruckSelection" component={TruckSelection} />
             <Stack.Screen name="CreditCard" component={CreditCard} />

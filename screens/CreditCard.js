@@ -12,6 +12,13 @@ import StyledInput from '../componets/Inputs/StyledInput';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import KeyboardAvoiding from '../componets/Containers/KeyboardAvoiding';
 import BottomButton from '../componets/Buttons/BottomButton';
+import useUser from '../hook/useUser';
+import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
+import { db } from '../config';
+import { setDoc, doc, uid, updateDoc } from '@firebase/firestore';
+import { MaterialIndicator } from 'react-native-indicators';
+import { useDispatch } from 'react-redux';
+import { setCardNumbers } from '../slices/navSlice';
 
 
 
@@ -21,10 +28,47 @@ const CreditCard = (params) => {
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const [enableBtn, setEnableBtn] = useState(false)
+    const dispatch = useDispatch();
     const [cardName, setCardName] = useState("");
     const [cardNumber, setCardNumber] = useState("");
     const [cardExpiry, setCardExpiry] = useState("");
     const [cardCVC, setCardCVC] = useState("");
+    const [toastrVisible, setToastrVisible] = useState(false);
+    const { userData, isLoading: isUserDataLoading } = useUser();
+    const [bodyText, setBodyText] = useState('');
+    const [disabledBtn, setDisabledBtn] = useState(false);
+
+    const showToastr = (bodyText) => {
+        setBodyText(bodyText);
+    }
+
+    const successToastr = () => {
+        setTimeout(() => {
+            setToastrVisible(false);
+        }, 4000)
+        setToastrVisible(true);
+        return showToastr('Card Details Saved!');
+    };
+
+    const saveCardDetails = async () => {
+        setDisabledBtn(true);
+        const userID = doc(db, "users", userData.uid)
+        await updateDoc(userID, {
+            ccDetails: [cardDetails = {cardName, cardCVC, cardExpiry}],
+            cardNumber: cardNumber,
+        });
+
+        setTimeout(() => {
+            setDisabledBtn(false)
+            successToastr();
+            setCardCVC("");
+            setCardName("");
+            setCardNumber("");
+            setCardExpiry("");
+            setEnableBtn(false);
+        }, 3000)
+
+    };
     // FONTS
     const [fontsLoaded] = useFonts({
         'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
@@ -61,7 +105,6 @@ const CreditCard = (params) => {
             </View>
 
 
-
             <KeyboardAvoiding>
                 <View style={styles.cardDetails}>
                     <View style={styles.cardInput}>
@@ -69,7 +112,10 @@ const CreditCard = (params) => {
                         <StyledInput
                             icon="account-outline"
                             keyboardAppearance="light"
-                            onChangeText={(text) => setCardName(text)}
+                            onChangeText={(text) => {
+                                setCardName(text);
+                                setEnableBtn(true);
+                            }}
                             enablesReturnKeyAutomatically={true}
                             value={cardName}
                         />
@@ -84,10 +130,13 @@ const CreditCard = (params) => {
                             inputMode='numeric'
                             returnKeyType='done'
                             isCard={true}
-                            onChangeText={(text) => setCardNumber(text)}
+                            onChangeText={(text) => {
+                                setCardNumber(text);
+                                setEnableBtn(true);
+                            }}
                             value={cardNumber}
                             minLength={1}
-                            maxLength={14}
+                            maxLength={16}
 
                         />
                     </View>
@@ -102,6 +151,7 @@ const CreditCard = (params) => {
                                 returnKeyType='done'
                                 onChangeText={(text) => {
                                     setCardExpiry(text);
+                                    setEnableBtn(true);
                                 }
                                 }
                                 value={cardExpiry}
@@ -132,9 +182,20 @@ const CreditCard = (params) => {
                 </View>
             </KeyboardAvoiding>
 
-            <BottomButton disabled={!enableBtn}>Save New Card</BottomButton>
+            {!disabledBtn && <BottomButton disabled={!enableBtn} style={{ opacity: enableBtn ? 1 : 0.3, width: '100%' }} onPress={saveCardDetails}>Save Card Details</BottomButton>}
+            {disabledBtn && 
+                <BottomButton disabled={disabledBtn} style={{ alignItems: 'center', width: '100%' }}>
+                    <MaterialIndicator color='white' size={18} trackWidth={30 / 10} />
+                </BottomButton>
+            }
 
+            {
+                toastrVisible ? (<ToastrSuccess
+                    bodyText={bodyText}
+                />
+                ) : null
 
+            }
 
             <StatusBar style="dark" />
         </View>

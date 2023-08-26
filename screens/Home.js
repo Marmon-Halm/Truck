@@ -17,6 +17,8 @@ import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch, useSelector } from 'react-redux';
 import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
 import axios from 'axios';
+import { setDoc, doc, uid, updateDoc } from '@firebase/firestore';
+import { db } from '../config';
 import MessageModal from '../componets/Modals/MessageModal';
 // apiKey: AIzaSyA25oUM8BiNy3Iuv4QaLDTU4YzbZxmZUX4
 
@@ -127,6 +129,14 @@ export default function Home(params) {
   // }, [currentLocation]);
 
 
+  const tryout = async () => {
+    const userLoc = doc(db, "usersLocation", "1")
+    await updateDoc(userLoc, {
+      pickup: position,
+    });
+  }
+
+
 
   const bottomSheetModalRef = useRef(null);
   const snapPoints = useMemo(() => ['95%', '95%'], []);
@@ -176,12 +186,11 @@ export default function Home(params) {
 
         <View style={{ paddingHorizontal: 0, height: '100%' }}>
           <MapView
-            style={{ width: width, height: '70%' }}
+            style={{ width: width, height: '60%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={position}
             region={position}
             followsUserLocation={true}
-            userLocationUpdateInterval={2000}
             showsUserLocation={true}
           />
 
@@ -195,9 +204,10 @@ export default function Home(params) {
             snapPoints={snapPoints1}
             overDragResistanceFactor={0}
             backgroundStyle={{
-              borderRadius: 20, shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.2,
-              shadowRadius: 2,
+              borderRadius: 20, shadowColor: 'lightgrey', shadowOffset: { width: 0, height: -1 }, shadowOpacity: 0.2, shadowRadius: 2, }}
+            handleIndicatorStyle={{
+              backgroundColor: 'lightgrey',
+              height: 3
             }}
           >
             <View style={styles.searchContainer}>
@@ -250,7 +260,7 @@ export default function Home(params) {
           ref={bottomSheetModalRef}
           index={1}
           snapPoints={snapPoints}
-          backgroundStyle={{ borderRadius: 20, }}
+          backgroundStyle={{ borderRadius: 30, }}
           onChange={handleSheetChanges}
           onDismiss={() => setModalOpen(false)}
         >
@@ -437,7 +447,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F1F1F1",
     alignItems: "center",
     shadowColor: 'gray',
-    shadowOffset: { width: 0, height: 0 },
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.5,
     shadowRadius: 2,
     elevation: 10,
@@ -462,7 +472,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1.5,
     shadowColor: 'lightgray',
-    shadowOffset: { width: 2, height: 2 },
+    shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 10,

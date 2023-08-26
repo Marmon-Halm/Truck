@@ -19,10 +19,11 @@ import ToastrSuccess from '../componets/Toastr Notification/ToastrSuccess';
 import ToastrForSignUp from '../componets/Toastr Notification/ToastForSignUp';
 
 export default function ResetP(params) {
-
+    const navigation = params.navigation;
     const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     const [isEnabled, setIsEnabled] = useState(false);
     const [message, setMessage] = useState('');
+    const auth = getAuth();
     const [isSuccessMessage, setIsSuccessMessage] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -33,38 +34,11 @@ export default function ResetP(params) {
     const [headerText, setHeaderText] = useState('');
     const [modalMessage, setModalMessage] = useState('');
     const [buttonText, setButtonText] = useState('');
-    const doYourTask = () => {
-        setIsEnabled(true);
-    };
-
-    const navigation = params.navigation;
-
-    // FONTS
-    const [fontsLoaded] = useFonts({
-        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
-        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
-        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
-    })
-
-    if (!fontsLoaded) {
-        return undefined;
-    } else {
-        SplashScreen.hideAsync();
-    }
-
-    const auth = getAuth();
-    const buttonHandler = () => {
-        if (modalMessageType === "success") {
-            // do something
-        }
-
-        setModalVisible(false);
-    };
-
     const [toastrVisible, setToastrVisible] = useState(false);
     const [toastrVisible1, setToastrVisible1] = useState(false);
     const [bodyText, setBodyText] = useState('');
     const [bodyText1, setBodyText1] = useState('');
+
     const showToastr = (bodyText) => {
         setBodyText(bodyText);
     }
@@ -79,10 +53,28 @@ export default function ResetP(params) {
         return showToastr('Password-Reset Link Sent!');
     };
 
+    const doYourTask = () => {
+        setIsEnabled(true);
+    };
+
+    // FONTS
+    const [fontsLoaded] = useFonts({
+        'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+        'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
+        'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
+    })
+
+    if (!fontsLoaded) {
+        return undefined;
+    } else {
+        SplashScreen.hideAsync();
+    }
+
+   
+
 
 
     const handleOnSubmit = async () => {
-
 
         try {
             setMessage(null);
@@ -126,8 +118,6 @@ export default function ResetP(params) {
 
             <TitleText style={{ marginBottom: 15, marginTop: 7, }}>Reset Password</TitleText>
             <RegularTexts style={{ color: '#6A6A6A', marginBottom: 20 }}>Enter a valid email address for a password-reset link</RegularTexts>
-
-
 
             <Formik
                 initialValues={{ email: '' }}

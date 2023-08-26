@@ -3,6 +3,7 @@ import { Text, StyleSheet, View, Dimensions, TouchableOpacity, Image } from 'rea
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { AntDesign, Feather, Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { MaterialIndicator } from 'react-native-indicators';
 import * as Location from 'expo-location';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
@@ -12,17 +13,12 @@ import MapViewDirections from 'react-native-maps-directions';
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import marker from '../assets/marker.png';
 import flag from '../assets/flag.png';
+import { color } from './color';
 
 
 const LocationsPage = (params) => {
     const navigation = params.navigation;
     const [location, setLocation] = useState(null);
-    const [position, setPosition] = useState({
-        latitude: 0,
-        longitude: 0,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-    });
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
     const [dataIn, setDataIn] = useState(false);
@@ -31,6 +27,14 @@ const LocationsPage = (params) => {
     const destination = useSelector(selectDestination);
     const mapRef = useRef(null);
     const { width, height } = Dimensions.get("window");
+    const [position, setPosition] = useState({
+        latitude: origin.location.lat,
+        longitude: origin.location.lng,
+    });
+    const [destinationPosition, setDestinationPosition] = useState({
+        latitude: destination.location.lat,
+        longitude: destination.location.lng,
+    });
 
     // FONTS
     const [fontsLoaded] = useFonts({
@@ -41,9 +45,8 @@ const LocationsPage = (params) => {
 
     useEffect(() => {
         setTimeout(() => {
-            setDataIn(true);
-            navigation.navigate('TruckSelection');
-        }, 5000)
+            navigation.navigate('WaitingForDriver');
+        }, 6000)
     }, [])
 
     if (!fontsLoaded) {
@@ -72,8 +75,8 @@ const LocationsPage = (params) => {
                 {
                     origin && destination && (
                         <MapViewDirections
-                            origin={origin.description}
-                            destination={destination.description}
+                            origin={position}
+                            destination={destinationPosition}
                             apikey={GOOGLE_MAPS_APIKEY}
                             strokeWidth={3}
                             strokeColor='black'
@@ -88,9 +91,9 @@ const LocationsPage = (params) => {
                                 latitude: origin.location.lat,
                                 longitude: origin.location.lng,
                             }}
-                            identifier='origin'
+                            identifier="mk1"
                         >
-                            <Image source={marker} />
+                            <Ionicons name="pin-sharp" size={35} color={color.primary} />
                             <Callout style={{ width: 85 }}>
                                 <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 16, }}>{origin.title}</Text>
                             </Callout>
@@ -105,9 +108,9 @@ const LocationsPage = (params) => {
                                 latitude: destination.location.lat,
                                 longitude: destination.location.lng,
                             }}
-                            identifier='destination'
+                            identifier="mk2"
                         >
-                            <Image source={flag} />
+                            <Ionicons name="pin-sharp" size={35} color="black" />
                             <Callout style={{ width: 85 }}>
                                 <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
                             </Callout>

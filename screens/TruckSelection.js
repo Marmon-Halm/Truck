@@ -52,6 +52,8 @@ export default function TruckSelection(params) {
   const [active3, setActive3] = useState(false);
   const [active4, setActive4] = useState(true);
   const [active5, setActive5] = useState(false);
+  const [newNContainer, setNewNContainer] = useState('');
+  const [activePayment, setActivePayment] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState('');
   const [estimatedTime, setEstimatedTime] = useState('');
@@ -62,10 +64,29 @@ export default function TruckSelection(params) {
   const [disabledBtn, setDisabledBtn] = useState(false);
   const [addedHrPM, setAddedHrPm] = useState(null)
 
+
   useEffect(() => {
     if (userData) {
-      //  console.log('user data ', userData)
+      if (userData.cardAdded == true) {
+        setActive5(true)
+      }
+
+      if (userData.ccSelected == true) {
+        setActive4(false)
+      }
     };
+
+  }, [userData, isUserDataLoading])
+
+  useEffect(() => {
+
+
+
+
+
+    // if (activePayment == true) {
+    //   setActive4(false);
+    // };
 
     if (!origin || !destination) return;
 
@@ -99,7 +120,7 @@ export default function TruckSelection(params) {
     loadTime();
     const addedHr = hours + newTimeHr;
     const addedMin = newMin + newTimeMin;
-    
+
     const timeAuth = () => {
 
       if (addedHr > 12) {
@@ -108,7 +129,7 @@ export default function TruckSelection(params) {
         setEstimatedTime(
           "0" + addedHrPM + ' :' + addedMin + " PM"
         );
-        console.log("ETA HOUR IS MORE THAN 12")
+        // console.log("ETA HOUR IS MORE THAN 12")
         // if (addedHrPM < 10) {
         //   setEstimatedTime(
         //     "0" + addedHrPM + ' :' + addedMin + " PM"
@@ -122,11 +143,11 @@ export default function TruckSelection(params) {
       };
 
       if (addedHr > 12 && addedHrPM < 10) {
-        console.log(addedHrPM)
+        // console.log(addedHrPM)
         setEstimatedTime(
           "0" + addedHrPM + ' :' + addedMin + " PM"
         );
-        console.log("ETA HOUR IS MORE THAN 12  && IS LESS THAN 10")
+        //  console.log("ETA HOUR IS MORE THAN 12  && IS LESS THAN 10")
       }
 
       else {
@@ -139,10 +160,11 @@ export default function TruckSelection(params) {
       if (addedMin >= 60) {
         const newAddedHr = parseInt(addedHr) + 1;
         const newAddedMin = parseInt(addedMin) - 60;
+        const newEditedHr = newAddedHr - 12;
 
-        if (newAddedMin < 10) {
+        if (newAddedMin <= 10) {
           setEstimatedTime(
-            newAddedHr + ' :' + "0" + newAddedMin
+            newEditedHr + ' :' + "0" + newAddedMin + " PM"
           );
         } else {
           setEstimatedTime(
@@ -151,7 +173,7 @@ export default function TruckSelection(params) {
         }
 
       } else {
-        console.log("ETA MINUTES ARE LESS THAN 60")
+        // console.log("ETA MINUTES ARE LESS THAN 60")
         setEstimatedTime(
           addedHrPM + ':' + addedMin + " PM"
         );
@@ -159,7 +181,7 @@ export default function TruckSelection(params) {
 
 
     };
-    
+
     timeAuth();
 
     setTimeout(() => {
@@ -173,15 +195,17 @@ export default function TruckSelection(params) {
       } else if (hours > 12) {
         const newLiveHrPM = hours - 12;
         setCurrentDate(
-           newLiveHrPM + ':' + newMin + " PM"
+          newLiveHrPM + ':' + newMin + " PM"
         );
-      } else if (hours > 12 & newMin < 10 ) {
+
+        if (hours > 12 && newMin < 10) {
+          setCurrentDate(
+            newLiveHrPM + ':' + "0" + newMin + " PM"
+          );
+        }
+      } else if (newMin < 10) {
         setCurrentDate(
-          hours + ':' + "0" + newMin + " PM"
-        );
-      } else {
-        setCurrentDate(
-          hours + ':' + newMin + " AM"
+          hours + ':' + "0" + newMin + " AM"
         );
       };
 
@@ -364,6 +388,10 @@ export default function TruckSelection(params) {
               shadowOpacity: 0.2,
               shadowRadius: 2,
             }}
+            handleIndicatorStyle={{
+              backgroundColor: 'lightgrey',
+              height: 3
+            }}
           >
             <View style={styles.truckSelectionContainer}>
 
@@ -501,7 +529,7 @@ export default function TruckSelection(params) {
 
               </View>
 
-              <TouchableOpacity style={{ height: '15%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
+              <TouchableOpacity style={{ height: '16%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} onPress={handlePresentModalPress}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', height: '100%' }}>
                   <View style={{ width: 53, height: '100%', backgroundColor: "#F1F1F1", justifyContent: "center", alignItems: "center", borderRadius: 15, marginRight: 10 }}>
                     {
@@ -517,7 +545,7 @@ export default function TruckSelection(params) {
                     active4 ? (
                       <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Cash</Text>
                     ) : (
-                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>Credit / Debit </Text>
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold' }}>{userData.cardNumber}</Text>
                     )
                   }
 
@@ -623,11 +651,6 @@ export default function TruckSelection(params) {
             </View>
           </View>
 
-
-
-
-
-
           <StatusBar style="dark" />
         </View>
 
@@ -637,6 +660,10 @@ export default function TruckSelection(params) {
           snapPoints={snapPoints}
           onChange={handleSheetChanges}
           backgroundStyle={{ borderRadius: 20, backgroundColor: '#E8E9EB' }}
+          handleIndicatorStyle={{
+            backgroundColor: 'lightgrey',
+            height: 3
+          }}
           onDismiss={() => setModalOpen(false)}
         >
           <View style={styles.paymentOptions}>
@@ -657,21 +684,24 @@ export default function TruckSelection(params) {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.option} onPress={cardActive}>
-              <View style={styles.iconView2}>
-                <MaterialCommunityIcons name="credit-card" size={22} color="black" />
-              </View>
+            {
+              userData.cardAdded &&
+              <TouchableOpacity style={styles.option} onPress={cardActive}>
+                <View style={styles.iconView2}>
+                  <MaterialCommunityIcons name="credit-card" size={22} color="black" />
+                </View>
 
-              <View style={{ width: '70%', paddingLeft: 15 }}>
-                <Text style={styles.optionText}>
-                  Credit / Debit Card
-                </Text>
-              </View>
+                <View style={{ width: '70%', paddingLeft: 15 }}>
+                  <Text style={styles.optionText}>
+                    {userData.cardNumber}
+                  </Text>
+                </View>
 
-              <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                <MaterialCommunityIcons name={!active5 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
-              </View>
-            </TouchableOpacity>
+                <View style={{ width: '18%', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                  <MaterialCommunityIcons name={!active5 ? "radiobox-blank" : "radiobox-marked"} size={24} color={color.primary} />
+                </View>
+              </TouchableOpacity>
+            }
 
 
           </View>
@@ -781,7 +811,7 @@ const styles = StyleSheet.create({
     height: '35%',
     width: '100%',
     backgroundColor: '#F1F1F1',
-    marginBottom: 15,
+    marginBottom: 10,
     flexDirection: 'row',
     paddingVertical: 12,
     paddingHorizontal: 20,
