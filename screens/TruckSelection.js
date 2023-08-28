@@ -19,11 +19,11 @@ import RegularButton from '../componets/Buttons/RegularButton';
 import useUser from '../hook/useUser';
 import * as SplashScreen from 'expo-splash-screen';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
+import { selectDestination, selectOrigin, selectTravelTimeInformation, setCarType, setTravelTimeInformation, } from '../slices/navSlice';
 import MapViewDirections from 'react-native-maps-directions';
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import { MaterialIndicator } from 'react-native-indicators';
-
+import { mapStyle } from '../global/mapStyle';
 
 export default function TruckSelection(params) {
   const navigation = params.navigation;
@@ -39,13 +39,26 @@ export default function TruckSelection(params) {
     latitude: origin.location.lat,
     longitude: origin.location.lng,
   });
+  const [coords, setCoords] = useState([
+    {
+      latitude: origin.location.lat,
+      longitude: origin.location.lng,
+    },
+    {
+      latitude: destination.location.lat,
+      longitude: destination.location.lng,
+    }
+
+  ]);
   const [destinationPosition, setDestinationPosition] = useState({
     latitude: destination.location.lat,
     longitude: destination.location.lng,
   });
+
   const [loading, setLoading] = useState(false);
   const [truckPrice, setTruckPrice] = useState(1.3);
   const [selectTruck, setSelectTruck] = useState('Request Small Truck');
+  const [truckType, setTruckType] = useState('Small');
   const [active, setActive] = useState(true);
   const [active1, setActive1] = useState(false);
   const [active2, setActive2] = useState(false);
@@ -76,12 +89,15 @@ export default function TruckSelection(params) {
       }
     };
 
+    dispatch(
+      setCarType({
+        description: truckType,
+      })
+    );
+
   }, [userData, isUserDataLoading])
 
   useEffect(() => {
-
-
-
 
 
     // if (activePayment == true) {
@@ -182,7 +198,6 @@ export default function TruckSelection(params) {
 
     };
 
-    timeAuth();
 
     setTimeout(() => {
 
@@ -209,6 +224,7 @@ export default function TruckSelection(params) {
         );
       };
 
+      timeAuth();
 
 
     }, 2000)
@@ -218,6 +234,22 @@ export default function TruckSelection(params) {
   // useEffect(() => {
 
   // }, [])
+
+  const runFitToCoordinates = () => {
+    // const coordinates = position;
+    // const radiusBoundaries = getBoundsOfDistance(coordinates, earthRadius * 1000)
+
+    mapRef.current.fitToCoordinates(coords, {
+      edgePadding: {
+        top: 70,
+        right: 50,
+        bottom: 70,
+        left: 50,
+      },
+     animated: true
+    })
+  };
+
 
   const cashActive = () => {
 
@@ -242,6 +274,11 @@ export default function TruckSelection(params) {
       setActive(true);
       setSelectTruck('Request Small Truck')
       setTruckPrice(1.3)
+      dispatch(
+        setCarType({
+          description: "Small",
+        })
+      );
     }
   }
   const mActive = () => {
@@ -253,6 +290,11 @@ export default function TruckSelection(params) {
       setActive1(true);
       setSelectTruck('Request Medium Truck');
       setTruckPrice(1.85);
+      dispatch(
+        setCarType({
+          description: "Medium",
+        })
+      );
     };
   }
   const lActive = () => {
@@ -263,6 +305,11 @@ export default function TruckSelection(params) {
       setActive3(false);
       setSelectTruck('Request Large Truck');
       setTruckPrice(2.6);
+      dispatch(
+        setCarType({
+          description: "Large",
+        })
+      );
     }
   }
   const hActive = () => {
@@ -273,6 +320,11 @@ export default function TruckSelection(params) {
       setActive3(true);
       setSelectTruck('Request Huge Truck');
       setTruckPrice(6);
+      dispatch(
+        setCarType({
+          description: "Huge",
+        })
+      );
     };
   }
 
@@ -311,20 +363,16 @@ export default function TruckSelection(params) {
       <BottomSheetModalProvider style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 0, height: '100%', opacity: modalOpen ? 0.3 : 1 }}>
           <MapView
-            ref={map => { this.map = map }}
+            ref={mapRef}
             style={{ width: width, height: '41%' }}
             provider={PROVIDER_GOOGLE}
             initialRegion={{
               latitude: origin.location.lat,
               longitude: origin.location.lng,
-              latitudeDelta: 0.025,
-              longitudeDelta: 0.025,
             }}
+            customMapStyle={mapStyle}
             onMapReady={() => {
-              this.map.fitToSuppliedMarkers(["origin", "destination"], {
-                edgePadding: { top: 50, right: 50, down: 50, left: 50 },
-                animated: true,
-              })
+              runFitToCoordinates();
             }}
           >
 
@@ -347,7 +395,7 @@ export default function TruckSelection(params) {
                     latitude: origin.location.lat,
                     longitude: origin.location.lng,
                   }}
-                  identifier={"origin"}
+                  identifier="origin1"
                 >
                   <Ionicons name="pin-sharp" size={35} color={color.primary} />
                   <Callout style={{ width: 85 }}>
@@ -364,7 +412,7 @@ export default function TruckSelection(params) {
                     latitude: destination.location.lat,
                     longitude: destination.location.lng,
                   }}
-                  identifier={"destination"}
+                  identifier="destination1"
                 >
                   <Ionicons name="pin-sharp" size={35} color="black" />
                   <Callout style={{ width: 85 }}>
@@ -517,14 +565,34 @@ export default function TruckSelection(params) {
                 </View>
 
                 <View style={styles.tripText1}>
-                  <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
-                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'left' }}>{origin.title}</Text>
-                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{currentDate}</Text>
+                  <View style={{ width: '93%', height: "50%" }}>
+                    <View >
+                      <Text style={{ fontSize: 13, fontFamily: 'Manrope_700Bold', textAlign: 'left', color: 'grey', marginBottom: 0 }}>Pickup</Text>
+                    </View>
+                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold', textAlign: 'left', marginTop: -3 }}>{origin.title}</Text>
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold', marginTop: -3 }}>{currentDate}</Text>
+                    </View>
                   </View>
-                  <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
-                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
-                    <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
+                  <View style={{ width: '93%', height: "50%" }}>
+                    <View >
+                      <Text style={{ fontSize: 13, fontFamily: 'Manrope_700Bold', textAlign: 'left', color: 'grey' }}>Drop-off</Text>
+                    </View>
+                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', }}>
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold', textAlign: 'left', marginTop: -3 }}>{destination.title}</Text>
+                      <Text style={{ fontSize: 17, fontFamily: 'Manrope_700Bold', marginTop: -3 }}>{estimatedTime}</Text>
+                    </View>
                   </View>
+                  {/* <View>
+                    <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+                      <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
+                      <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
+                    </View>
+                    <View style={{ width: '93%', flexDirection: 'row', justifyContent: 'space-between', marginVertical: 10 }}>
+                      <Text style={{ fontSize: 19, fontFamily: 'Manrope_600SemiBold', marginLeft: 5, textAlign: 'right' }}>{destination.title}</Text>
+                      <Text style={{ fontSize: 19, fontFamily: 'Manrope_700Bold', marginLeft: 5 }}>{estimatedTime}</Text>
+                    </View>
+                  </View> */}
                 </View>
 
               </View>
@@ -808,13 +876,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   tripAddressNTime: {
-    height: '35%',
+    height: '37%',
     width: '100%',
     backgroundColor: '#F1F1F1',
     marginBottom: 10,
     flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
     borderRadius: 20,
     alignItems: 'center',
   },
@@ -831,7 +899,7 @@ const styles = StyleSheet.create({
     width: '7%',
   },
   circle: {
-    width: 10, height: 10, borderRadius: 100 / 2, borderWidth: 3, borderColor: 'black'
+    width: 11, height: 11, borderRadius: 100 / 2, borderWidth: 3, borderColor: 'black'
   },
   line: {
     width: 2, height: 35, backgroundColor: 'black'

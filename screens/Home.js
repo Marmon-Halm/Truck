@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Platform, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform, Dimensions, Image } from 'react-native';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location';
@@ -15,6 +15,8 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { GOOGLE_MAPS_APIKEY } from "@env";
 import { useDispatch, useSelector } from 'react-redux';
+import { mapStyle } from '../global/mapStyle';
+import { carsAround } from '../global/data';
 import { selectOrigin, setDestination, setOrigin } from '../slices/navSlice';
 import axios from 'axios';
 import { setDoc, doc, uid, updateDoc } from '@firebase/firestore';
@@ -61,15 +63,16 @@ export default function Home(params) {
   const [position, setPosition] = useState({
     latitude: origin.location.lat,
     longitude: origin.location.lng,
-    latitudeDelta: 0.005,
-    longitudeDelta: 0.005,
+    latitudeDelta: 0.009,
+    longitudeDelta: 0.009,
   });
 
-  useEffect(() => {
+  useEffect(() => {2
     SetDisplayAddress(origin.title);
     if (textInputRef.current) {
       textInputRef.current.setAddressText(displayAddress);
-    }
+    };
+
   }, [])
 
 
@@ -188,11 +191,26 @@ export default function Home(params) {
           <MapView
             style={{ width: width, height: '60%' }}
             provider={PROVIDER_GOOGLE}
-            initialRegion={position}
+            initialRegion={{ ...carsAround[0], latitudeDelta: 0.008, longitudeDelta: 0.008 }}
             region={position}
             followsUserLocation={true}
             showsUserLocation={true}
-          />
+            customMapStyle={mapStyle}
+          >
+
+            {carsAround.map((item, index) =>
+              <Marker coordinate={item} key={index.toString()}
+              >
+                <Image
+                  source={require('../assets/carMarker.png')}
+                  style={styles.carsAround}
+                  resizeMode="cover"
+                />
+              </Marker>
+            )
+
+            }
+          </MapView>
 
           <TouchableOpacity style={styles.menuContainer} onPress={() => { navigation.navigate("Settings") }}>
             <Feather name="menu" size={20} color="#000" />
@@ -204,7 +222,8 @@ export default function Home(params) {
             snapPoints={snapPoints1}
             overDragResistanceFactor={0}
             backgroundStyle={{
-              borderRadius: 20, shadowColor: 'lightgrey', shadowOffset: { width: 0, height: -1 }, shadowOpacity: 0.2, shadowRadius: 2, }}
+              borderRadius: 20, shadowColor: 'lightgrey', shadowOffset: { width: 0, height: -1 }, shadowOpacity: 0.2, shadowRadius: 2,
+            }}
             handleIndicatorStyle={{
               backgroundColor: 'lightgrey',
               height: 3
@@ -217,8 +236,8 @@ export default function Home(params) {
               </View>
               <View >
                 <TouchableOpacity onPress={handlePresentModalPress} style={styles.searchButton}>
-                  <Feather name="search" style={{ marginRight: 8 }} size={20} color="#555555" />
-                  <RegularTexts style={{ color: "#555555", fontSize: 18 }}>Where to ?</RegularTexts>
+                  <Feather name="search" style={{ marginRight: 8 }} size={22} color="#555555" />
+                  <RegularTexts style={{ color: "#555555", fontSize: 20, }}>Where to ?</RegularTexts>
                 </TouchableOpacity>
               </View>
 
@@ -337,6 +356,7 @@ export default function Home(params) {
                         setModalVisible(false);
                       }, 4000)
                     }
+
                   }}
                   returnKeyType={'return'}
                   minLength={2}
@@ -436,8 +456,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
 
   },
+  carsAround: {
+    width: 30,
+    height: 15,
+
+  },
   searchButton: {
-    height: 62,
+    height: 60,
     width: "100%",
     flexDirection: "row",
     marginVertical: 5,

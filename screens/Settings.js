@@ -26,7 +26,6 @@ export default function Settings(params) {
 
     const navigation = params.navigation;
     const [loggingOut, setLoggingOut] = useState(false);
-    const cardNumbers = useSelector(selectCardNumbers);
     const { userData, isLoading: isUserDataLoading } = useUser();
     const windowWidth = Dimensions.get('window').width;
     const windowHeight = Dimensions.get('window').height;
@@ -171,8 +170,8 @@ export default function Settings(params) {
                                 {userData.photoUri && <Image source={{ uri: userData.photoUri }} style={{ width: '100%', height: '100%', borderRadius: 120 / 2, }} />}
                             </View>
 
-                            <Text style={styles.profileText}>{userData?.firstName}</Text>
-                            <Text style={styles.profileText2}>{userData?.phoneNumber}</Text>
+                            <Text style={styles.profileText}>{userData.firstName}</Text>
+                            <Text style={styles.profileText2}>{userData.phoneNumber}</Text>
 
                         </View>
 

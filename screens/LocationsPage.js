@@ -14,6 +14,7 @@ import { GOOGLE_MAPS_APIKEY } from "@env";
 import marker from '../assets/marker.png';
 import flag from '../assets/flag.png';
 import { color } from './color';
+import { mapStyle } from '../global/mapStyle';
 
 
 const LocationsPage = (params) => {
@@ -35,6 +36,17 @@ const LocationsPage = (params) => {
         latitude: destination.location.lat,
         longitude: destination.location.lng,
     });
+    const [coords, setCoords] = useState([
+        {
+            latitude: origin.location.lat,
+            longitude: origin.location.lng,
+        },
+        {
+            latitude: destination.location.lat,
+            longitude: destination.location.lng,
+        }
+
+    ]);
 
     // FONTS
     const [fontsLoaded] = useFonts({
@@ -42,6 +54,21 @@ const LocationsPage = (params) => {
         'Manrope_600SemiBold': require('../assets/Manrope-SemiBold.ttf'),
         'Manrope_700Bold': require('../assets/Manrope-Bold.ttf'),
     })
+
+    const runFitToCoordinates = () => {
+        // const coordinates = position;
+        // const radiusBoundaries = getBoundsOfDistance(coordinates, earthRadius * 1000)
+
+        mapRef.current.fitToCoordinates(coords, {
+            edgePadding: {
+                top: 150,
+                right: 50,
+                bottom: 150,
+                left: 50,
+            },
+            animated: true
+        })
+    };
 
     useEffect(() => {
         setTimeout(() => {
@@ -64,11 +91,13 @@ const LocationsPage = (params) => {
                 ref={mapRef}
                 style={{ width: width, height: '100%' }}
                 provider={PROVIDER_GOOGLE}
+                customMapStyle={mapStyle}
                 initialRegion={{
                     latitude: origin.location.lat,
                     longitude: origin.location.lng,
-                    latitudeDelta: 0.045,
-                    longitudeDelta: 0.045,
+                }}
+                onMapReady={() => {
+                    runFitToCoordinates();
                 }}
             >
 

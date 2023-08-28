@@ -56,6 +56,7 @@ const CreditCard = (params) => {
         await updateDoc(userID, {
             ccDetails: [cardDetails = {cardName, cardCVC, cardExpiry}],
             cardNumber: cardNumber,
+            cardAdded: true
         });
 
         setTimeout(() => {

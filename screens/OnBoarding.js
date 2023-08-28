@@ -23,7 +23,7 @@ const slides = [
         id: '1',
         image: require('../assets/img1.png'),
         title: 'TRIP PLANNING',
-        description: 'Order rides based on load type by selecting the vehicle type to transport load',
+        description: 'Order rides based on the weight of your load by selecting the vehicle type to transport your load',
     },
     {
         id: '2',

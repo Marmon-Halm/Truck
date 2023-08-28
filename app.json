@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/remer.png",
+      "image": "./assets/splashCar.png",
       "resizeMode": "cover",
       "backgroundColor": "#016e96"
     },

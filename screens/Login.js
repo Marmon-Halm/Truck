@@ -15,11 +15,14 @@ import ghana from '../assets/ghana.png';
 import { UserContext } from '../contexts/UserContext';
 import { StatusBarHeight } from '../componets/shared';
 import StyledInput from '../componets/Inputs/StyledInput';
+import * as SplashScreen from 'expo-splash-screen';
 const { primary } = color;
 import { MaterialIndicator } from 'react-native-indicators';
 import ToastrError from '../componets/Toastr Notification/ToastrError';
 import LoadingModal from '../componets/Modals/LoadingModal';
 import MessageModal from '../componets/Modals/MessageModal';
+import TitleText from '../componets/Texts/TitleText';
+import { useFonts } from 'expo-font';
 
 
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -84,21 +87,35 @@ export default function Login(params) {
     }, 2000)
   };
 
+  const [fontsLoaded] = useFonts({
+    'Manrope_500Medium': require('../assets/Manrope-Medium.ttf'),
+    'JK600': require('../assets/PlusJakartaSans-SemiBold.ttf'),
+    'JK700': require('../assets/PlusJakartaSans-Bold.ttf'),
+    'MP700': require('../assets/Manrope-SemiBold.ttf'),
+  })
+
+  if (!fontsLoaded) {
+    return undefined;
+  } else {
+    SplashScreen.hideAsync();
+  };
+
 
 
   return <MainContainer style={{ paddingTop: StatusBarHeight }}>
     <KeyboardAvoiding>
 
-      <View style={{ width: 100, height: 100, alignSelf: 'center', marginVertical: 30 }}>
-        <Image source={ghana} style={{ width: '100%', height: '100%' }} />
+      <View style={{ marginTop: 70, marginBottom: 30}}>
+        <TitleText style={{fontSize: 30, color: "black", fontFamily: 'JK600'}}>Welcome,</TitleText>
+        <TitleText style={{fontSize: 30, marginTop: 1 , fontFamily: 'JK600'}}>Login Here!</TitleText>
       </View>
 
       <Formik
         initialValues={{ email: '', password: '' }}
         onSubmit={(values, { setSubmitting }) => {
           if (email === "" && password === "") {
-            setMessage('Enter a valid email address');
-            setMessage1('Enter a valid password');
+            setMessage('Enter a your email address');
+            setMessage1('Enter a your password');
             setSubmitting(false);
 
           } else if (email === "") {

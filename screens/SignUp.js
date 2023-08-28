@@ -186,7 +186,7 @@ export default function SignUp(params) {
     <AntDesign name="arrowleft" size={30} color="black" onPress={() => { navigation.goBack() }} />
     <KeyboardAvoiding>
 
-      <TitleText style={{ marginBottom: 15, marginTop: 7, }}>Register here, it's free!</TitleText>
+      <TitleText style={{ marginBottom: 25, marginTop: 7, }}>Register here, it's free!</TitleText>
 
       {/* <RegularTexts>Country</RegularTexts>
 
@@ -350,7 +350,7 @@ export default function SignUp(params) {
           color={checked ? '#000' : undefined}
         />
       </View>
-      <RegularTexts style={{ fontSize: 13 }}>By submitting this form, you accept NAME's <RegularTexts style={{ color: primary, fontSize: 13 }}>Terms and Conditions</RegularTexts> and <RegularTexts style={{ color: primary, fontSize: 13 }}>Privacy Policy</RegularTexts></RegularTexts>
+      <RegularTexts style={{ fontSize: 13 }}>By submitting this form, you accept Car-Go's <RegularTexts style={{ color: primary, fontSize: 13 }}>Terms and Conditions</RegularTexts> and <RegularTexts style={{ color: primary, fontSize: 13 }}>Privacy Policy</RegularTexts></RegularTexts>
 
     </RowContainer>
 

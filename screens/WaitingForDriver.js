@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import BottomSheet, { BottomSheetModal, BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
+import { selectCarType, selectDestination, selectOrigin, selectTravelTimeInformation, setTravelTimeInformation, } from '../slices/navSlice';
 import MapViewDirections from 'react-native-maps-directions';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { GOOGLE_MAPS_APIKEY } from "@env";
@@ -21,6 +21,7 @@ import TitleText from '../componets/Texts/TitleText';
 import useUser from '../hook/useUser';
 import RegularTexts from '../componets/Texts/RegularTexts';
 import RegularButton from '../componets/Buttons/RegularButton';
+import { mapStyle } from '../global/mapStyle';
 
 
 const WaitingForDriver = (params) => {
@@ -30,11 +31,40 @@ const WaitingForDriver = (params) => {
     const { userData, isLoading: isUserDataLoading } = useUser();
     const windowHeight = Dimensions.get('window').height;
     const [dataIn, setDataIn] = useState(false);
+    const carType = useSelector(selectCarType);
     const [userPhoto, setUserPhoto] = useState('');
     const origin = useSelector(selectOrigin);
     const destination = useSelector(selectDestination);
+    const [truckName, setTruckName] = useState("")
+    const [displaySmallTruck, setDisplaySmallTruck] = useState(false);
+    const [displayMediumTruck, setDisplayMediumTruck] = useState(false);
+    const [displayLargeTruck, setDisplayLargeTruck] = useState(false);
+    const [displayHugeTruck, setDisplayHugeTruck] = useState(false);
     const mapRef = useRef(null);
     const { width, height } = Dimensions.get("window");
+    const [coords, setCoords] = useState([
+        {
+          latitude: origin.location.lat,
+          longitude: origin.location.lng,
+        },
+        {
+          latitude: destination.location.lat,
+          longitude: destination.location.lng,
+        }
+    
+      ]);
+
+    useEffect(() => {
+        if (carType.description == "Small") {
+            setDisplaySmallTruck(true);
+        } else if (carType.description == "Medium") {
+            setDisplayMediumTruck(true);
+        } else if (carType.description == "Large") {
+            setDisplayLargeTruck(true);
+        } else if (carType.description == "Huge") {
+            setDisplayHugeTruck(true)
+        }
+    }, [])
 
     // FONTS
     const [fontsLoaded] = useFonts({
@@ -58,6 +88,19 @@ const WaitingForDriver = (params) => {
         longitude: destination.location.lng,
     });
 
+    const runFitToCoordinates = () => {
+
+        mapRef.current.fitToCoordinates(coords, {
+            edgePadding: {
+                top: 70,
+                right: 50,
+                bottom: 70,
+                left: 50,
+            },
+            animated: true
+        })
+    };
+
 
     if (!fontsLoaded) {
         return undefined;
@@ -74,11 +117,13 @@ const WaitingForDriver = (params) => {
                     ref={mapRef}
                     style={{ width: width, height: '60%' }}
                     provider={PROVIDER_GOOGLE}
+                    customMapStyle={mapStyle}
                     initialRegion={{
                         latitude: origin.location.lat,
                         longitude: origin.location.lng,
-                        latitudeDelta: 0.045,
-                        longitudeDelta: 0.045,
+                    }}
+                    onMapReady={() => {
+                        runFitToCoordinates();
                     }}
                 >
 
@@ -120,7 +165,7 @@ const WaitingForDriver = (params) => {
                                 }}
                                 identifier="mk2"
                             >
-                                <Ionicons name="pin-sharp" size={35} color="black" />
+                                <Image source={require('../assets/carMarker.png')} style={{ width: 30, height: 15, }} />
                                 <Callout style={{ width: 85 }}>
                                     <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
                                 </Callout>
@@ -139,38 +184,63 @@ const WaitingForDriver = (params) => {
                         shadowRadius: 2,
                     }}
                     handleIndicatorStyle={{
-                        backgroundColor:'lightgrey',
+                        backgroundColor: 'lightgrey',
                         height: 3
                     }}
                 >
                     <View style={{ paddingHorizontal: 15, height: '100%' }}>
-                        <RegularTexts style={{fontSize: 16, textAlign: 'center'}}>Driver arrives in ~  <RegularTexts style={{color: color.primary, fontSize: 16}}>8 mins</RegularTexts></RegularTexts>
+                        <RegularTexts style={{ fontSize: 16, textAlign: 'center' }}>Driver arrives in ~  <RegularTexts style={{ color: color.primary, fontSize: 16 }}>8 mins</RegularTexts></RegularTexts>
                         <View style={styles.carInformation}>
                             <View style={{ width: '57%', height: '100%', justifyContent: 'space-between', }}>
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                     <TitleText style={{ color: 'black', fontSize: 22, fontFamily: 'Manrope_600SemiBold', marginBottom: 5 }}>GW-2323-22</TitleText>
                                     <View style={{ justifyContent: 'center', width: 55, height: 25, alignItems: 'center', backgroundColor: "#FFE3CE", borderWidth: 1, borderColor: color.primary, borderRadius: 5 }}>
-                                        <Text style={{ fontSize: 12, fontFamily: 'Manrope_500Medium' }}>Small</Text>
+                                        {
+                                            displaySmallTruck && <Text style={{ fontSize: 12, fontFamily: 'Manrope_600SemiBold' }}>Small</Text>
+                                        }
+                                        {
+                                            displayMediumTruck && <Text style={{ fontSize: 12, fontFamily: 'Manrope_600SemiBold' }}>Medium</Text>
+                                        }
+                                        {
+                                            displayLargeTruck && <Text style={{ fontSize: 12, fontFamily: 'Manrope_600SemiBold' }}>Large</Text>
+                                        }
+                                        {
+                                            displayHugeTruck && <Text style={{ fontSize: 12, fontFamily: 'Manrope_600SemiBold' }}>Huge</Text>
+                                        }
+
                                     </View>
                                 </View>
                                 <RegularTexts style={{ fontSize: 16 }}>Ford F150 ~ White</RegularTexts>
                             </View>
                             <View style={{ width: '43%', height: '100%' }}>
-                                <Image source={sm} style={{ width: '100%', height: '100%', resizeMode: "contain", alignSelf: 'flex-end', flex: 1 }} />
+                                {
+                                    displaySmallTruck && <Image source={sm} style={{ width: '100%', height: '100%', resizeMode: "contain", alignSelf: 'flex-end', flex: 1 }} />
+                                }
+                                {
+                                    displayMediumTruck && <Image source={md} style={{ width: '100%', height: '100%', resizeMode: "contain", alignSelf: 'flex-end', flex: 1 }} />
+                                }
+                                {
+                                    displayLargeTruck && <Image source={lg} style={{ width: '100%', height: '100%', resizeMode: "contain", alignSelf: 'flex-end', flex: 1 }} />
+                                }
+                                {
+                                    displayHugeTruck && <Image source={hg} style={{ width: '100%', height: '100%', resizeMode: "contain", alignSelf: 'flex-end', flex: 1 }} />
+                                }
+
+
                             </View>
 
                         </View>
 
                         <View style={styles.driverInformation}>
                             <View style={{ width: '18%', height: '100%', backgroundColor: 'grey', borderRadius: 10 }}>
-                                <Image source={{ uri: userData.photoUri }} style={{ width: '100%', height: '100%',borderRadius: 10 }} />
+                                <Image source={require('../assets/driver.jpg')} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
                             </View>
 
-                            <View style={{ width: '55%', height: '100%', justifyContent: 'space-evenly', paddingVertical: 8}}>
+                            <View style={{ width: '55%', height: '100%', justifyContent: 'space-evenly', paddingVertical: 8 }}>
                                 <TitleText style={{ color: 'black', fontSize: 18, fontFamily: 'Manrope_600SemiBold', marginBottom: 5 }}>Johnny Boateng</TitleText>
-                                <RegularTexts style={{ fontSize: 16 }}>5 star driver</RegularTexts>
+                                <RegularTexts style={{ fontSize: 16 }}><Ionicons name="star-sharp" size={16} color="#ffe534" /> 5.0 </RegularTexts>
                             </View>
-                            <View style={{ width: '22%', height: '100%',justifyContent: 'center', alignItems: 'flex-end'}}>
+                            <View style={{ width: '22%', height: '100%', justifyContent: 'center', alignItems: 'flex-end' }}>
                                 <TouchableOpacity style={styles.backButton}>
                                     <MaterialCommunityIcons name="phone" size={25} color="black" />
                                 </TouchableOpacity>
@@ -185,7 +255,9 @@ const WaitingForDriver = (params) => {
                 <StatusBar style="dark" />
                 <View style={styles.backAndButton}>
                     <View style={{ width: '100%' }}>
-                        <RegularButton >Cancel</RegularButton>
+                        <RegularButton onPress={() => {
+                            navigation.navigate("Home")
+                        }}>Cancel</RegularButton>
                     </View>
                 </View>
             </View>
