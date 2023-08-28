@@ -186,7 +186,7 @@ export default function SignUp(params) {
     <AntDesign name="arrowleft" size={30} color="black" onPress={() => { navigation.goBack() }} />
     <KeyboardAvoiding>
 
-      <TitleText style={{ marginBottom: 25, marginTop: 7, }}>Register here, it's free!</TitleText>
+    <TitleText style={{ marginBottom: 25, marginTop: 7, }}><TitleText style={{color: 'black'}}>Register here,</TitleText> It's free!</TitleText>
 
       {/* <RegularTexts>Country</RegularTexts>
 
@@ -251,8 +251,8 @@ export default function SignUp(params) {
             <StyledInput
               icon="account-outline"
               onChangeText={(text) => setFirstName(text)}
-              onBlur={handleBlur('firstName')}
               enablesReturnKeyAutomatically={true}
+              autoCapitalize="words"
               keyboardAppearance="light"
               value={firstName}
             />

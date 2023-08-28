@@ -12,9 +12,11 @@ import small from '../assets/small.png';
 import medium from '../assets/medium.png';
 import cash from '../assets/cash.png';
 import large from '../assets/large.png';
+import { auth, db } from '../config';
 import pin from '../assets/pin.png';
 import flag from '../assets/flag.png';
 import huge from '../assets/huge.png';
+import { doc, updateDoc } from '@firebase/firestore';
 import RegularButton from '../componets/Buttons/RegularButton';
 import useUser from '../hook/useUser';
 import * as SplashScreen from 'expo-splash-screen';
@@ -74,6 +76,7 @@ export default function TruckSelection(params) {
   const [newTimeHr, setNewTimeHr] = useState('');
   const [etaHrs, setEtaHrs] = useState('');
   const [etaMinutes, setEtaMinutes] = useState('');
+
   const [disabledBtn, setDisabledBtn] = useState(false);
   const [addedHrPM, setAddedHrPm] = useState(null)
 
@@ -85,7 +88,7 @@ export default function TruckSelection(params) {
       }
 
       if (userData.ccSelected == true) {
-        setActive4(false)
+        setActive4(false);
       }
     };
 
@@ -123,7 +126,7 @@ export default function TruckSelection(params) {
 
     const hours = new Date().getHours();
     const min = new Date().getMinutes();
-    const newMin = min + 5;
+    const newMin = min + 8;
     const loadTime = () => {
       if (etaMinutes > 60) {
         setNewTimeHr(etaHrs);
@@ -156,17 +159,15 @@ export default function TruckSelection(params) {
         //   );
         // }
 
-      };
+        if (addedHrPM < 10) {
+          // console.log(addedHrPM)
+          setEstimatedTime(
+            "0" + addedHrPM + ' :' + addedMin + " PM"
+          );
+          //  console.log("ETA HOUR IS MORE THAN 12  && IS LESS THAN 10")
+        }
 
-      if (addedHr > 12 && addedHrPM < 10) {
-        // console.log(addedHrPM)
-        setEstimatedTime(
-          "0" + addedHrPM + ' :' + addedMin + " PM"
-        );
-        //  console.log("ETA HOUR IS MORE THAN 12  && IS LESS THAN 10")
-      }
-
-      else {
+      } else {
         setEstimatedTime(
           addedHr + ' :' + addedMin + " AM"
         );
@@ -191,16 +192,14 @@ export default function TruckSelection(params) {
       } else {
         // console.log("ETA MINUTES ARE LESS THAN 60")
         setEstimatedTime(
-          addedHrPM + ':' + addedMin + " PM"
+          addedHr + ':' + addedMin + " AM"
         );
       };
 
 
     };
 
-
-    setTimeout(() => {
-
+    const runCTime = () => {
       if (newMin >= 60) {
         const newLiveHr = parseInt(hours) + 1;
         const newLiveMin = parseInt(newMin) - 60;
@@ -224,10 +223,14 @@ export default function TruckSelection(params) {
         );
       };
 
+    };
+
+    runCTime();
+
+
+    setTimeout(() => {
       timeAuth();
-
-
-    }, 2000)
+    }, 1000)
 
   }, [userData, isUserDataLoading, origin, destination, GOOGLE_MAPS_APIKEY])
 
@@ -246,22 +249,36 @@ export default function TruckSelection(params) {
         bottom: 70,
         left: 50,
       },
-     animated: true
+      animated: true
     })
   };
 
 
+  const userID = doc(db, "users", userData.uid)
+
   const cashActive = () => {
+    
 
     if (active5 == true) {
       setActive5(false);
       setActive4(true);
     }
+
+    setTimeout( async () => {
+      await updateDoc(userID, {
+        ccSelected: false
+      });
+    }, 2000)
   }
-  const cardActive = () => {
+  const cardActive = async () => {
     if (active4 == true) {
       setActive4(false);
       setActive5(true);
+
+      await updateDoc(userID, {
+        ccSelected: true
+    });
+  
     };
   }
 

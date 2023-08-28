@@ -165,7 +165,7 @@ const WaitingForDriver = (params) => {
                                 }}
                                 identifier="mk2"
                             >
-                                <Image source={require('../assets/carMarker.png')} style={{ width: 30, height: 15, }} />
+                                <Image source={require('../assets/carMarker2.png')} style={{ width: 30, height: 15, }} />
                                 <Callout style={{ width: 85 }}>
                                     <Text style={{ fontFamily: 'Manrope_600SemiBold', fontSize: 17, }}>{destination.title}</Text>
                                 </Callout>
@@ -255,9 +255,7 @@ const WaitingForDriver = (params) => {
                 <StatusBar style="dark" />
                 <View style={styles.backAndButton}>
                     <View style={{ width: '100%' }}>
-                        <RegularButton onPress={() => {
-                            navigation.navigate("Home")
-                        }}>Cancel</RegularButton>
+                        <RegularButton >Cancel</RegularButton>
                     </View>
                 </View>
             </View>

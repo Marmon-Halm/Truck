@@ -10,10 +10,8 @@ import { color } from '../../screens/color';
 
 
 
-const { primary, sea, white, little, killed, grey } = color;
 const InputField = styled.TextInput`
 font-size: 16px;
-color: ${killed};
 width: 80%;
 padding-left: 5px;
 padding-right: 25px;
@@ -53,12 +51,9 @@ const RightIcon = styled.TouchableOpacity`
 `;
 
 
-const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, isMomo, isVoda, valid, ...props }) => {
-
+const StyledInput = ({ icon, label, isPhone, isPassword, isCard, valid, ...props }) => {
 
     const [hidePassword, setHidePassword] = useState(true);
-    const [textChanged, setTextChanged] = useState(false)
-
     return (
         <InputContainer style={{ borderWidth: 1.5, borderColor: '#DCDCDC', backgroundColor: "#FAFAFA" }}>
             <LeftIconContainer>
@@ -69,35 +64,21 @@ const StyledInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isCard, is
 
             <InputField
                 {...props}
-                placeholderTextColor={killed}
                 secureTextEntry={isPassword && hidePassword}
-                onChange={(text) => {
-                    setTextChanged(true);
-                }}
             />
-            {isPassword && <RightIconContainer >
-
-                <RightIcon onPress={() => { setHidePassword(!hidePassword) }}>
-                    <Feather name={hidePassword ? 'eye-off' : 'eye'} size={18} color="#7A7A7A" />
-                </RightIcon>
-
-            </RightIconContainer>
-            }
-
-            {isCard && <RightIconContainer >
-
-                <RightIcon >
-                    <Image source={visa} style={{ width: 24, height: 22, borderRadius: 5 }} />
-                </RightIcon>
+            <RightIconContainer >
+                {
+                    isPassword && <RightIcon onPress={() => { setHidePassword(!hidePassword) }}>
+                        <Feather name={hidePassword ? 'eye-off' : 'eye'} size={18} color="#7A7A7A" />
+                    </RightIcon>
+                }
+                {
+                    isCard && <RightIcon>
+                        <Image source={visa} style={{ width: 24, height: 22, borderRadius: 5 }} />
+                    </RightIcon>
+                }
 
             </RightIconContainer>
-            }
-
-            {isPhone && <RightIcon>
-                <Feather name={'chevron-down'} size={18} color="#7A7A7A" />
-
-            </RightIcon>}
-
         </InputContainer>
     )
 

@@ -23,6 +23,7 @@ import LoadingModal from '../componets/Modals/LoadingModal';
 import MessageModal from '../componets/Modals/MessageModal';
 import TitleText from '../componets/Texts/TitleText';
 import { useFonts } from 'expo-font';
+import StyledTextInput from '../componets/Inputs/StyledTextInput';
 
 
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -131,7 +132,7 @@ export default function Login(params) {
 
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+        {({  handleSubmit, isSubmitting }) => (
           <>
             <MsgText
               style={{ marginBottom: 12, fontSize: errorMessage ? 16 : 0 }}
@@ -167,19 +168,6 @@ export default function Login(params) {
               isPassword={true}
               value={password}
             />
-
-            {/* <StyledTextInput
-              icon="key"
-              placeholder="Password"
-              onChangeText={(text) => {
-                setPassword(text)
-                setPwdValid(PWD_REGEX.test(text))
-
-              }}
-              isPassword={true}
-              value={password}
-              valid={pwdValid}
-            /> */}
 
             <MsgText
               style={{ marginBottom: message1 ? 12 : 0, marginLeft: 3, textAlign: 'left', fontSize: message1 ? 14 : 0 }}

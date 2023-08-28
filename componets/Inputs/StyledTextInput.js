@@ -48,7 +48,7 @@ const RightIcon = styled.TouchableOpacity`
 
 
 
-const StyledTextInput = ({ icon, label, isPhone, thisIsEmail, isPassword, isMat, valid, ...props }) => {
+const StyledTextInput = ({ icon,  isPhone, thisIsEmail, isPassword, isMat, valid, ...props }) => {
 
     const [inputBackgroundColor, setInputBackgroundColor] = useState(primary);
     const [hidePassword, setHidePassword] = useState(true);
